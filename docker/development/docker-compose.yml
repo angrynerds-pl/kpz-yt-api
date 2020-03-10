@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  # Run compiled app in watch mode
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/development/Dockerfile
+    ports:
+    - '3000:3000'
+    - '9229:9229' # Node debug
+    tty: true
+    volumes:
+      - '.:/app'
+    command: sh -c '/wait-for -t 60 database:3306 -- npm run start:debug'
+    depends_on:
+      - database
+    env_file: ./docker/development/.env
+    restart: 'unless-stopped'
+
+  # Database
+  database:
+    image: mariadb
+    restart: 'unless-stopped'
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - database:/var/lib/mysql
+    env_file: ./docker/development/.env
+    ports:
+      - '3306'
+
+volumes:
+  database:
