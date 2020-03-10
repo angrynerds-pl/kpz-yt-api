@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage{scrextend}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}%polskie znaki
+\usepackage[utf8]{inputenc}%polskie znaki
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{tabulary}
+\usepackage{etoc}
+\usepackage[normalem]{ulem} 
+\renewcommand{\baselinestretch}{1.5}
+\graphicspath{ {img/} }
+\newgeometry{lmargin=2.0cm, rmargin=2.0cm, tmargin=2.0cm, bmargin=2.0cm}
+\usepackage{tikz}
+\usepackage[bf]{caption}
+\usepackage{dirtytalk}
+\usepackage{listings}
+\usepackage{xcolor}
+\newcommand{\paragraphnewline}[1]{\paragraph{#1}\mbox{}\\}
+
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\title{ 
+    \vspace*{50mm}
+    \textsc{
+        \textbf{Rozpoznawanie i Przetwarzanie Obrazów}\\
+        \large Todo tytuł
+    }
+} 
+\author{
+Maja Bojarska\\
+Wiktor Pieklik\\
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+\setcounter{tocdepth}{2}
+\localtableofcontents
+\listoffigures
+\lstlistoflistings
+
+\newpage
+
+% \input{parts/Etap_1.tex}
+% \input{parts/Bib.tex}
+
+\end{document}

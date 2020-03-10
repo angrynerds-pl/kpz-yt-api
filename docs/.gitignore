@@ -1,0 +1,4 @@
+src/diagrams/out
+
+out/*.*
+!out/*.pdf
