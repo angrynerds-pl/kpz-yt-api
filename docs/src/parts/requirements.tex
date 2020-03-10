@@ -1,0 +1,43 @@
+\section{Wymagania}
+\subsection{Wymagania funkcjonalne}
+Uzytkownik może:
+\renewcommand\labelitemii{$\bullet$}
+\renewcommand\labelitemiii{$\bullet$}
+\begin{itemize}
+    \item utworzyć indywidualne konto, identyfikowane poprzez unikalny login, zabezpieczone hasłem,
+    \item się zalogować do swojego konta w aplikacji,
+    \item zapisywać (dodawać) utwory do swojego konta, na wybraną playlistę, za pomocą:
+          \begin{itemize}
+              \item przycisku wyświetlonego pod filmem w domenie YouTube,
+              \item formularza dodawania utworu w aplikacji,
+          \end{itemize}
+    \item usuwać utwory z wybranej playlisty,
+    \item utworzyć wiele indywidualnych playlist, identyfikowanych nazwą,
+    \item usunąć wybraną playlistę, wraz z zapisanymi na niej utworami,
+    \item przenieść wybrany utwór do innej playlisty,
+    \item odtwarzać utwory zapisane w wybranej playliście:
+          \begin{itemize}
+              \item w kolejności losowej,
+              \item w kolejności według daty dodania:
+                    \begin{itemize}
+                        \item od najnowszego,
+                        \item od najstarszego,
+                    \end{itemize}
+          \end{itemize}
+    \item ustawić tryb zapętlenia na:
+          \begin{itemize}
+              \item \say{powtarzaj jeden}
+              \item \say{powtarzaj playlistę}.
+          \end{itemize}
+\end{itemize}
+
+\clearpage
+\subsection{Wymagania niefunkcjonalne}
+
+\begin{itemize}
+    \item Aplikacja zapewnia bezpieczeństwo sesji użytkownika za pomocą JWT\footnote{JSON Web Token}.
+    \item Aplikacja jest odporna na popularne ataki, typu \say{SQL Injection}.
+    \item Interfejs graficzny aplikacji działa po stronie przeglądarki użytkownika i komunikuje się z jej serwerem za pomocą RESTful API.
+    \item Architektura aplikacji musi umożliwiać szybką instalację wszystkich jej komponentów, serwisów i jej uruchomienie za pomocą przeglądarki opartej o projekt Chromium.
+    \item Aplikacja funkcjonuje w przeglądarce opartej o Chromium, jako jej rozszerzenie (Chrome extension).
+\end{itemize}
