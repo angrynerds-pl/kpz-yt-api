@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  # Run compiled app in watch mode
+  app_prod:
+    build:
+      context: .
+      dockerfile: ./docker/production/Dockerfile
+    ports:
+    - '3000:3000'
+    tty: true
+    command: sh -c '/wait-for -t 60 database_prod:3306 -- npm run start:prod'
+    depends_on:
+      - database_prod
+    env_file: ./docker/production/.env
+    environment:
+      DB_HOST: 'database_prod'
+    restart: 'unless-stopped'
+
+  # Database
+  database_prod:
+    image: mariadb
+    restart: 'unless-stopped'
+    volumes:
+      - database:/var/lib/mysql
+    env_file: ./docker/production/.env
+    ports:
+      - '3306'
+
+volumes:
+  database:
