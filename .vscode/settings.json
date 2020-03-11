@@ -1,0 +1,14 @@
+{
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.latex.search.rootFiles.exclude": ["**/parts/**/*.tex"],
+  "latex-workshop.latex.outDir": "%DIR%/../out",
+  "plantuml.diagramsRoot": "docs/src/diagrams/src",
+  "plantuml.exportOutDir": "docs/src/diagrams/out",
+  "plantuml.exportSubFolder": false,
+
+  "[latex]": {
+    "editor.wordWrap": "bounded"
+  },
+  "spellright.language": ["English (American)", "English (British)", "Polish"],
+  "spellright.documentTypes": ["markdown", "latex"]
+}
