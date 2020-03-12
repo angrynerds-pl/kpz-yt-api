@@ -1,0 +1,20 @@
+@startuml moduleDiagram
+
+
+component "AppModule" as app_module
+component "AuthModule" as auth_module
+component "UsersModule" as users_module
+component "ListsModule" as lists_module
+component "ListItemsModule" as list_items_module
+
+app_module .-> auth_module
+app_module .-> users_module
+app_module .-> lists_module
+
+auth_module .-> users_module
+
+users_module .-> lists_module
+
+lists_module .-> list_items_module
+
+@enduml
