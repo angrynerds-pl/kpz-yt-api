@@ -1,7 +1,8 @@
 @startuml moduleDiagram
-
+title NestJS module diagram
 
 component "AppModule" as app_module
+component "ConfigModule" as config_module
 component "AuthModule" as auth_module
 component "UsersModule" as users_module
 component "ListsModule" as lists_module
@@ -16,5 +17,10 @@ auth_module .-> users_module
 users_module .-> lists_module
 
 lists_module .-> list_items_module
+
+note bottom of config_module
+Every module may depend
+on ConfigModule
+end note
 
 @enduml

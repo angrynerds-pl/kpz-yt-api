@@ -72,6 +72,21 @@ $ npm run docker:dev:down
 $ npm run docker:prod:attach
 ```
 
+## Swagger
+Swagger runs on `/api`. And that's it :smile:.
+
+## Docs
+Docs are compiled using latex. Vscode's extension `Latex Workshop` is configured in `.vscode/settings.json` file. Make sure to have `latexmk` and `pdflatex` available from `PATH`. 
+It is recommended to compile docs using texlive and have installed following packages:
+* texlive
+* texlive-science
+* texlive-latex-recommended
+* texlive-latex-extra
+* texlive-latex-base
+* texlive-lang-polish
+* texlive-extra-utils
+* latexmk
+
 ## License
 
 [MIT licensed](LICENSE).

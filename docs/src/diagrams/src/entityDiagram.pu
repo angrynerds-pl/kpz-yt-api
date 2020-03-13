@@ -1,4 +1,5 @@
 @startuml entityDiagram
+title ERD
 left to right direction
 hide circle
 skinparam linetype ortho
