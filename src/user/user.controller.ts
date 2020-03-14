@@ -12,14 +12,14 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { AuthUser } from '../auth/decorators/auth-user.decorator';
+// import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+// import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 @ApiTags('user')
 @ApiBearerAuth()
-@UseGuards(AuthGuard())
+// @UseGuards(AuthGuard())
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
@@ -43,10 +43,10 @@ export class UserController {
   async update(
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
-    @AuthUser() authUser: User,
+    // @AuthUser() authUser: User,
   ) {
-    const user = await this.usersService.update(id, updateUserDto, authUser);
-    return user;
+    // const user = await this.usersService.update(id, updateUserDto, authUser);
+    // return user;
   }
 
   @Delete(':id')
