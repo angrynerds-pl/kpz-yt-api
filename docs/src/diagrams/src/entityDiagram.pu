@@ -14,12 +14,12 @@ entity "User" as user
     surname
 }
 
-entity "List" as playlist
+entity "Playlist" as playlist
 {
     name
 }
 
-entity "ListItem" as song
+entity "PlaylistItem" as song
 {
     title
     ytID
