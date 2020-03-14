@@ -1,0 +1,31 @@
+@startuml deployment
+title Deployment diagram
+top to bottom direction
+skinparam linetype ortho
+
+node "Application Server" <<device>>{
+  node "Node.js" as node <<execution environment>>{
+    node "NestJS" as rest <<RESTful API web server>>{
+      artifact kpz_yt_back <<artifact>>
+    }
+  }
+
+  node " " as static <<static web server>>{
+    artifact kpz_yt_front <<artifact>>
+  }
+
+  node "MySQL Database" as db <<database system>>
+}
+
+node "User device" as user_machine <<device>>{
+  node "Web browser" as browser <<executable environment>> {
+      node "Chrome Extension" as extension <<extension>>
+      node "Web Application" as app <<application>>
+  }
+}
+
+static -down- browser: <<protocol>>\nTCP/IP:80
+rest -down- browser: <<protocol>>\nTCP/IP:3000
+rest -up- db
+
+@enduml

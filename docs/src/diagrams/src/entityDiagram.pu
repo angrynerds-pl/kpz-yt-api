@@ -1,0 +1,30 @@
+@startuml entityDiagram
+title ERD
+left to right direction
+hide circle
+skinparam linetype ortho
+hide empty methods
+hide empty members
+
+entity "User" as user
+{
+    login
+    password
+    name
+    surname
+}
+
+entity "List" as playlist
+{
+    name
+}
+
+entity "ListItem" as song
+{
+    title
+    ytID
+}
+
+user ||--o{ playlist
+playlist ||--o{ song
+@enduml
