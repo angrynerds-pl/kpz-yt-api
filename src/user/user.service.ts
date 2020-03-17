@@ -58,7 +58,7 @@ export class UserService {
     }
   }
 
-  async update(id: number, dto: UpdateUserDto, updater: User): Promise<User> {
+  async update(id: number, dto: UpdateUserDto): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if (user) {
       if (dto.password) {

@@ -6,7 +6,8 @@ import {
   Param,
   Put,
   Delete,
-  UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -41,17 +42,33 @@ export class UserController {
 
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
-    // @AuthUser() authUser: User,
+    authUser: User,
+    // TODO: Add @AuthUser decorator to authUser param
   ) {
-    // const user = await this.usersService.update(id, updateUserDto, authUser);
-    // return user;
+    if (authUser.id != userId) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    const user = await this.usersService.update(userId, updateUserDto);
+    return user;
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number) {
     const user = await this.usersService.delete(id);
     return user;
+  }
+
+  @Get(':id/playlists')
+  async findPlaylists(
+    @Param('id') userId: number,
+    authUser: User,
+    // TODO: Add @AuthUser decorator to authUser param
+  ) {
+    if (authUser.id != userId) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    return this.usersService.findPlaylists(authUser);
   }
 }
