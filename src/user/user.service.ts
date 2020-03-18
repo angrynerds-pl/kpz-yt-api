@@ -37,9 +37,6 @@ export class UserService {
       .addSelect('user.password')
       .where('user.username = :username', { username })
       .getOne();
-    if (!user) {
-      throw new NotFoundException();
-    }
     return user;
   }
 
@@ -71,18 +68,16 @@ export class UserService {
   }
 
   async delete(userToDelete: User): Promise<User> {
-      this.userRepository.delete(userToDelete);
-      return userToDelete;
+    this.userRepository.delete(userToDelete);
+    return userToDelete;
   }
 
-  async findPlaylists(user: User): Promise<Playlist[]> {
-    return Promise.resolve(
-      [],
-    ); /* this.playlistRepository.find({
+  async findPlaylists(targetUser: User): Promise<Playlist[]> {
+    return this.playlistRepository.find({
       where: {
-        user: authUser,
+        user: targetUser,
       },
-    }); */
+    });
   }
 
   private async hashPassword(
