@@ -27,18 +27,17 @@ export class UserController {
 
   @Get()
   async find() {
-    return this.usersService.findAll();
+    return { data: this.usersService.findAll() };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.usersService.findById(id);
+    return { data: await this.usersService.findById(id) };
   }
 
   @Post()
   async store(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-    return user;
+    return { data: await this.usersService.create(createUserDto) };
   }
 
   @Put(':id')
@@ -50,14 +49,15 @@ export class UserController {
     if (authUser.id != userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const user = await this.usersService.update(userId, updateUserDto);
-    return user;
+    const updatedUser = await this.usersService.update(authUser, updateUserDto);
+    return { updatedUser };
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number) {
-    const user = await this.usersService.delete(id);
-    return user;
+    const userToDelete = await this.usersService.findById(id);
+    const deletedUser = await this.usersService.delete(userToDelete);
+    return { deletedUser };
   }
 
   @Get(':id/playlists')
@@ -69,6 +69,7 @@ export class UserController {
     if (authUser.id != userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    return this.usersService.findPlaylists(authUser);
+    const foundPlaylists = this.usersService.findPlaylists(authUser);
+    return { foundPlaylists };
   }
 }
