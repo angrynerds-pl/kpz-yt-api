@@ -7,10 +7,12 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { CreatePlaylistDto } from './dto/createPlaylistDto';
 import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
 import { ApiTags } from '@nestjs/swagger';
+import { Playlist } from './entities/playlist.entity';
 
 @ApiTags('playlist')
 @Controller('playlist')
@@ -19,24 +21,36 @@ export class PlaylistControler {
 
   @Get()
   async find() {
-    return this.playlistService.findAll();
+    return {
+        data: this.playlistService.findAll(),
+    }
   }
 
   @Get(':id')
   async findById(@Param('id') id: number) {
-    return this.playlistService.findById(id);
+    const playlist: Playlist = await this.playlistService.findById(id);
+    if (!playlist) {
+        throw new NotFoundException();
+      }
+    return {
+        data: playlist,
+    }
   }
 
   @Get(':id/playlistItems')
   async findPlaylistItems(@Param('id') id: number) {
-    return await this.playlistService.findPlaylistItems(
-      await this.playlistService.findById(id),
-    );
+    return {
+        data: await this.playlistService.findPlaylistItems(
+                await this.playlistService.findById(id),
+            ),
+        }
   }
 
   @Post()
   async store(@Body() createPlaylistDto: CreatePlaylistDto) {
-    return await this.playlistService.create(createPlaylistDto);
+    return {
+        data: await this.playlistService.create(createPlaylistDto),
+    }
   }
 
   @Put(':id')
@@ -44,11 +58,15 @@ export class PlaylistControler {
     @Param('id') id: number,
     @Body() updatePlaylistDto: UpdatePlaylistDto,
   ) {
-    return await this.playlistService.update(id, updatePlaylistDto);
+    return {
+        data: await this.playlistService.update(id, updatePlaylistDto),
+    }
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number) {
-    return this.playlistService.delete(id);
+    return {
+        data: this.playlistService.delete(id),
+    }
   }
 }

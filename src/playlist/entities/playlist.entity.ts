@@ -11,9 +11,9 @@ import { PlaylistItem } from '../../playlistItem/entities/playlistItem.entity';
 @Entity()
 export class Playlist {
   @PrimaryGeneratedColumn()
-  public id?: number;
+  public id: number;
   @Column()
-  public name?: string;
+  public name: string;
 
   // Relations
 
