@@ -9,7 +9,7 @@ export class PlaylistItem {
   //Relations
 
   @ManyToOne(
-    type => Playlist,
+    () => Playlist,
     playlist => playlist.playlistItem,
     { onDelete: 'CASCADE' },
   )

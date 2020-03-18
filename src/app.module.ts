@@ -5,6 +5,7 @@ import { ConfigService } from './config/config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from './config/config.module';
 import { UserModule } from './user/user.module';
+import { PlaylistModule } from './playlist/playlist.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UserModule } from './user/user.module';
       useExisting: ConfigService,
     }),
     UserModule,
+    PlaylistModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

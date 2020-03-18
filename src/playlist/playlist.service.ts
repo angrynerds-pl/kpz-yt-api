@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { Repository, FindManyOptions } from 'typeorm';
-import { PlaylistItem } from 'src/playlistItem/entities/playlistItem.entity';
+import { PlaylistItem } from 'src/playlist-item/entities/playlist-item.entity';
 import { CreatePlaylistDto } from './dto/createPlaylistDto';
 import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
 
@@ -10,8 +10,7 @@ import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
 export class PlaylistService {
   constructor(
     @InjectRepository(Playlist)
-    private readonly playlistRepository: Repository<Playlist>,
-    private readonly playlistItemRepository: Repository<PlaylistItem>,
+    private readonly playlistRepository: Repository<Playlist>, // PlaylistItemService
   ) {}
 
   async findAll(options?: FindManyOptions<Playlist>): Promise<Playlist[]> {
@@ -19,16 +18,17 @@ export class PlaylistService {
   }
 
   async findById(id: number): Promise<Playlist> {
-    const playlist = this.playlistRepository.findOne(id);
-    return playlist;
+    const playlist = await this.playlistRepository.findOne(id);
+    if (!playlist) {
+      throw new NotFoundException({
+        /*  */
+      });
+    }
+    return;
   }
 
-  async findPlaylistItems(playlist: Playlist): Promise<PlaylistItem[]> {
-    return this.playlistItemRepository.find({
-      where: {
-        playlist: playlist,
-      },
-    });
+  async findPlaylistItems(id: number): Promise<PlaylistItem[]> {
+    return Promise.resolve([]);
   }
 
   async create(dto: CreatePlaylistDto): Promise<Playlist> {

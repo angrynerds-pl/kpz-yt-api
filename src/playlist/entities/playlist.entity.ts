@@ -6,7 +6,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { PlaylistItem } from '../../playlistItem/entities/playlistItem.entity';
+import { PlaylistItem } from '../../playlist-item/entities/playlist-item.entity';
 
 @Entity()
 export class Playlist {
@@ -20,18 +20,14 @@ export class Playlist {
   @ManyToOne(
     type => User,
     user => user.playlists,
-    {
-      nullable: true,
-    },
+    { onDelete: 'CASCADE' },
   )
   public user: User;
 
   @OneToMany(
     type => PlaylistItem,
     playlistItem => playlistItem.playlist,
-    {
-      nullable: true,
-    },
+    { onDelete: 'CASCADE' },
   )
-  public playlistItem: PlaylistItem;
+  public playlistItem: PlaylistItem[];
 }
