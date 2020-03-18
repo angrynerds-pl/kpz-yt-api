@@ -15,7 +15,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { User } from './entities/user.entity';
 
 @Controller('users')
@@ -50,26 +50,25 @@ export class UserController {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     const updatedUser = await this.usersService.update(authUser, updateUserDto);
-    return { updatedUser };
+    return { data: updatedUser };
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number) {
     const userToDelete = await this.usersService.findById(id);
     const deletedUser = await this.usersService.delete(userToDelete);
-    return { deletedUser };
+    return { data: deletedUser };
   }
 
   @Get(':id/playlists')
   async findPlaylists(
     @Param('id') userId: number,
-    authUser: User,
-    // TODO: Add @AuthUser decorator to authUser param
+    @AuthUser() authUser: User,
   ) {
     if (authUser.id != userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     const foundPlaylists = this.usersService.findPlaylists(authUser);
-    return { foundPlaylists };
+    return { data: foundPlaylists };
   }
 }

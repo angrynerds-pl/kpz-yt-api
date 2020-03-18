@@ -31,7 +31,7 @@ describe('User Controller', () => {
 
     const result = await controller.find();
 
-    expect(result).toEqual(expected);
+    expect(result.data).toBe(expected);
   });
 
   it('find user by id', async () => {
@@ -41,7 +41,7 @@ describe('User Controller', () => {
 
     const result = await controller.findOne(userId);
 
-    expect(result).toBe(expected);
+    expect(result.data).toBe(expected);
   });
 
   it('create user', async () => {
@@ -57,7 +57,7 @@ describe('User Controller', () => {
 
     const result = await controller.store(dto);
 
-    expect(result).toBe(expected);
+    expect(result.data).toBe(expected);
   });
 
   it('update user', async () => {
@@ -70,11 +70,13 @@ describe('User Controller', () => {
     const authUser = new User();
     authUser.id = userId;
 
-    userServiceMock.update = jest.fn((userId, dto) => Promise.resolve(expected));
+    userServiceMock.update = jest.fn((userId, dto) =>
+      Promise.resolve(expected),
+    );
 
-    const result = await controller.update(userId, dto,authUser);
+    const result = await controller.update(userId, dto, authUser);
 
-    expect(result).toBe(expected);
+    expect(result.data).toBe(expected);
   });
 
   it('delete user', async () => {
@@ -85,7 +87,7 @@ describe('User Controller', () => {
 
     const result = await controller.delete(userId);
 
-    expect(result).toBe(expected);
+    expect(result.data).toBe(expected);
   });
 
   it('find user playlists', async () => {
@@ -98,6 +100,6 @@ describe('User Controller', () => {
 
     const result = await controller.findPlaylists(userId, authUser);
 
-    expect(result).toBe(expected);
+    expect(result.data).toBe(expected);
   });
 });
