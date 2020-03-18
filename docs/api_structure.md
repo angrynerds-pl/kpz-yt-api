@@ -31,7 +31,7 @@
 | Purpose              | Request                                               |
 | :------------------- | :---------------------------------------------------- |   
 | Create playlist item | `POST /playlists/{id}/playlistitems`                  |
-| Read playlist items  | `GET /playlistitems`                                  |
+| Read playlist items  | `GET /playlists/{id}/playlistitems`                   |
 | Read playlist item   | `GET /playlistitems/{id}`                             |
 | Update playlist item | `PUT /playlistitems/{id}`                             |
 | Delete platlist item | `DELETE /playlistitems/{id}`                          |                                         
