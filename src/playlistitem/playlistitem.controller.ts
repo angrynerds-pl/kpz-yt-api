@@ -1,6 +1,5 @@
 import { 
     Controller,
-    Post,
     Body,
     Get,
     Put,
@@ -8,10 +7,11 @@ import {
     Param
 } from '@nestjs/common';
 import {PlaylistItemService} from './playlistitem.service';
-import { CreatePlaylistItemDto } from './dto/create-playlistitem.dto';
-
+import { UpdatePlaylistItemDto } from './dto/update-playlistitem.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('playlist-items')
+@ApiTags('playlist-item')
 export class PlaylistItemController {
     constructor(private readonly playListItemService: PlaylistItemService) {}
 
@@ -31,21 +31,23 @@ export class PlaylistItemController {
 
     @Get()
     async find() {
-        //call service method
+        return this.playListItemService.findAll();
     }
 
     @Get(':id')
     async findOne(@Param('id') id: number) {
-        //call service method
+        return this.playListItemService.findById(id);
     }
 
     @Put(':id')
-    async update(@Param('id') id: number) {
-        //call service method
+    async update(
+        @Param('id') id: number,
+        @Body() updatePlaylistItemDTO: UpdatePlaylistItemDto) {
+            return this.playListItemService.update(id, updatePlaylistItemDTO);
     }
 
     @Delete(':id')
     async delete(@Param('id') id: number) {
-        //call service method
+        return this.playListItemService.delete(id);
     }
 }

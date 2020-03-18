@@ -1,4 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { 
+    Injectable,
+    NotFoundException, 
+    ConflictException} from '@nestjs/common';
+import { CreatePlaylistItemDto } from './dto/create-playlistitem.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PlaylistItem } from './entities/playlistitem.entity';
+import { Repository, FindManyOptions } from 'typeorm';
+import { UpdatePlaylistItemDto } from './dto/update-playlistitem.dto';
 
 @Injectable()
-export class PlaylistItemService {}
+export class PlaylistItemService {
+    constructor(
+        @InjectRepository(PlaylistItem)
+        private readonly playlistItemRepository: Repository<PlaylistItem>,
+    ) {}
+
+    async create(itemDTO: CreatePlaylistItemDto): Promise<PlaylistItem> {
+        const count = await this.playlistItemRepository.count({
+            ytID: itemDTO.ytID,
+        });
+        if(count !== 0) {
+            throw new ConflictException({
+                exists: ['youtube movie ID'],
+            });
+        }
+
+        const playlistItem = this.playlistItemRepository.create(itemDTO);
+        return await this.playlistItemRepository.save(playlistItem);
+    }
+
+    async findAll(options?: FindManyOptions<PlaylistItem>): Promise<PlaylistItem[]> {
+        return await this.playlistItemRepository.find(options);
+    }
+
+    async findById(id: number): Promise<PlaylistItem | undefined> {
+        const playlistItem = this.playlistItemRepository.findOne(id);
+        if(!playlistItem) {
+            throw new NotFoundException();
+        }
+
+        return playlistItem;
+    }
+
+    async update(id: number, itemDTO: UpdatePlaylistItemDto): Promise<PlaylistItem> {
+        const playListItem = await this.playlistItemRepository.findOne(id);
+        if(!playListItem) {
+            throw new NotFoundException();
+        }
+
+        const updatedPlayListItem = this.playlistItemRepository.merge(playListItem, itemDTO);
+        return this.playlistItemRepository.save(updatedPlayListItem);
+    }
+
+    async delete(id: number): Promise<PlaylistItem> {
+        const playlistItem = await this.playlistItemRepository.findOne(id);
+        if(!playlistItem) {
+            throw new NotFoundException();
+        }
+
+        this.playlistItemRepository.delete(playlistItem);
+        return playlistItem;
+    }
+}
