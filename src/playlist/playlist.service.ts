@@ -13,8 +13,8 @@ export class PlaylistService {
     private readonly playlistRepository: Repository<Playlist>, // PlaylistItemService
   ) {}
 
-  async findAll(options?: FindManyOptions<Playlist>): Promise<Playlist[]> {
-    return await this.playlistRepository.find(options);
+  async findAll(): Promise<Playlist[]> {
+    return await this.playlistRepository.find();
   }
 
   async findById(id: number): Promise<Playlist> {

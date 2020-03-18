@@ -22,7 +22,7 @@ export class PlaylistControler {
   @Get()
   async find() {
     return {
-      data: this.playlistService.findAll(),
+      data: await this.playlistService.findAll(),
     };
   }
 
