@@ -6,7 +6,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { PlaylistItem } from '../../playlistitem/entities/playlistitem.entity';
+import { PlaylistItem } from '../../playlist-item/entities/playlist-item.entity';
 
 @Entity()
 export class Playlist {

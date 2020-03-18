@@ -2,11 +2,11 @@ import {
     Injectable,
     NotFoundException, 
     ConflictException} from '@nestjs/common';
-import { CreatePlaylistItemDto } from './dto/create-playlistitem.dto';
+import { CreatePlaylistItemDto } from './dto/create-playlist-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlaylistItem } from './entities/playlistitem.entity';
+import { PlaylistItem } from './entities/playlist-item.entity';
 import { Repository, FindManyOptions } from 'typeorm';
-import { UpdatePlaylistItemDto } from './dto/update-playlistitem.dto';
+import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
 
 @Injectable()
 export class PlaylistItemService {

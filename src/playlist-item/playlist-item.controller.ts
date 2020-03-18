@@ -6,8 +6,8 @@ import {
     Delete,
     Param
 } from '@nestjs/common';
-import {PlaylistItemService} from './playlistitem.service';
-import { UpdatePlaylistItemDto } from './dto/update-playlistitem.dto';
+import {PlaylistItemService} from './playlist-item.service';
+import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('playlist-items')

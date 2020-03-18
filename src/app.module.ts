@@ -5,7 +5,7 @@ import { ConfigService } from './config/config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from './config/config.module';
 import { UserModule } from './user/user.module';
-import { PlaylistItemModule } from './playlistitem/playlistitem.module';
+import { PlaylistItemModule } from './playlist-item/playlist-item.module';
 
 @Module({
   imports: [

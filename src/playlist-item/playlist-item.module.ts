@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PlaylistItemController } from './playlistitem.controller';
-import { PlaylistItemService } from './playlistitem.service';
+import { PlaylistItemController } from './playlist-item.controller';
+import { PlaylistItemService } from './playlist-item.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlaylistItem } from './entities/playlistitem.entity';
+import { PlaylistItem } from './entities/playlist-item.entity';
 
 @Module({
   controllers: [PlaylistItemController],
