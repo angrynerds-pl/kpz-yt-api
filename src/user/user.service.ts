@@ -15,7 +15,8 @@ import * as bcryptjs from 'bcryptjs';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>, //private readonly playlistRepository: Repository<Playlist>,
+    private readonly userRepository: Repository<User>,
+    private readonly playlistRepository: Repository<Playlist>,
   ) {}
 
   async findAll(options?: FindManyOptions<User>): Promise<User[]> {
@@ -59,32 +60,22 @@ export class UserService {
     }
   }
 
-  async update(id: number, dto: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (user) {
-      if (dto.password) {
-        dto.password = await this.hashPassword(dto);
-      }
-      const updatedUser = this.userRepository.merge(user, dto);
-      await this.userRepository.save(updatedUser);
-      delete updatedUser.password;
-      return updatedUser;
-    } else {
-      throw new NotFoundException();
+  async update(userToUpdate: User, dto: UpdateUserDto): Promise<User> {
+    if (dto.password) {
+      dto.password = await this.hashPassword(dto);
     }
+    const updatedUser = this.userRepository.merge(userToUpdate, dto);
+    await this.userRepository.save(updatedUser);
+    delete updatedUser.password;
+    return updatedUser;
   }
 
-  async delete(id: number): Promise<User> {
-    const user = await this.userRepository.findOne(id);
-    if (user) {
-      this.userRepository.delete(user);
-      return user;
-    } else {
-      throw new NotFoundException();
-    }
+  async delete(userToDelete: User): Promise<User> {
+      this.userRepository.delete(userToDelete);
+      return userToDelete;
   }
 
-  async findPlaylists(authUser: User): Promise<Playlist[]> {
+  async findPlaylists(user: User): Promise<Playlist[]> {
     return Promise.resolve(
       [],
     ); /* this.playlistRepository.find({
