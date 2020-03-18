@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { Repository, FindManyOptions } from 'typeorm';
 import { PlaylistItem } from 'src/playlist-item/entities/playlist-item.entity';
-import { CreatePlaylistDto } from './dto/createPlaylistDto';
-import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
+import { CreatePlaylistDto } from './dto/create-playlist-dto';
+import { UpdatePlaylistDto } from './dto/update-playlist-dto';
 
 @Injectable()
 export class PlaylistService {
@@ -14,7 +14,7 @@ export class PlaylistService {
   ) {}
 
   async findAll(): Promise<Playlist[]> {
-    return await this.playlistRepository.find();
+    return this.playlistRepository.find();
   }
 
   async findById(id: number): Promise<Playlist> {
@@ -24,7 +24,7 @@ export class PlaylistService {
         /*  */
       });
     }
-    return;
+    return playlist;
   }
 
   async findPlaylistItems(id: number): Promise<PlaylistItem[]> {
@@ -32,7 +32,7 @@ export class PlaylistService {
   }
 
   async create(dto: CreatePlaylistDto): Promise<Playlist> {
-    return await this.playlistRepository.save(
+    return this.playlistRepository.save(
       this.playlistRepository.create(dto),
     );
   }
@@ -44,8 +44,8 @@ export class PlaylistService {
   }
 
   async update(id: number, dto: UpdatePlaylistDto): Promise<Playlist> {
-    const playlist = await this.playlistRepository.findOne(id);
-    return await this.playlistRepository.save(
+    const playlist = await this.findById(id);
+    return this.playlistRepository.save(
       this.playlistRepository.merge(playlist, dto),
     );
   }

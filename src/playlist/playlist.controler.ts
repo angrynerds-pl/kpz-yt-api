@@ -7,12 +7,10 @@ import {
   Put,
   Delete,
 } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
-import { CreatePlaylistDto } from './dto/createPlaylistDto';
-import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
+import { CreatePlaylistDto } from './dto/create-playlist-dto';
+import { UpdatePlaylistDto } from './dto/update-playlist-dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Playlist } from './entities/playlist.entity';
 
 @ApiTags('playlists')
 @Controller('playlists')
@@ -20,19 +18,16 @@ export class PlaylistControler {
   constructor(private readonly playlistService: PlaylistService) {}
 
   @Get()
-  async find() {
-    return {
-      data: await this.playlistService.findAll(),
-    };
+  async findAll() {
+    const data = await this.playlistService.findAll();
+    return { data };
   }
 
   @Get(':id')
   async findById(@Param('id') id: number) {
-    const playlist: Playlist = await this.playlistService.findById(id);
+    const data = await this.playlistService.findById(id);
 
-    return {
-      data: playlist,
-    };
+    return { data };
   }
 
   @Get(':id/playlistItems')
@@ -43,9 +38,8 @@ export class PlaylistControler {
 
   @Post()
   async store(@Body() createPlaylistDto: CreatePlaylistDto) {
-    return {
-      data: await this.playlistService.create(createPlaylistDto),
-    };
+    const data = await this.playlistService.create(createPlaylistDto)
+    return { data };
   }
 
   @Put(':id')
@@ -53,15 +47,13 @@ export class PlaylistControler {
     @Param('id') id: number,
     @Body() updatePlaylistDto: UpdatePlaylistDto,
   ) {
-    return {
-      data: await this.playlistService.update(id, updatePlaylistDto),
-    };
+    const data = await this.playlistService.update(id, updatePlaylistDto)
+    return { data };
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number) {
-    return {
-      data: await this.playlistService.delete(id),
-    };
+    const data = await this.playlistService.delete(id);
+    return { data };
   }
 }
