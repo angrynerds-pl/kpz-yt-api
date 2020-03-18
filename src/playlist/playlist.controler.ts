@@ -1,37 +1,54 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from "@nestjs/common";
-import { PlaylistService } from "./playlist.service";
-import { CreatePlaylistDto } from "./dto/createPlaylistDto";
-import { UpdatePlaylistDto } from "./dto/updatePlaylistDto";
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Put,
+  Delete,
+} from '@nestjs/common';
+import { PlaylistService } from './playlist.service';
+import { CreatePlaylistDto } from './dto/createPlaylistDto';
+import { UpdatePlaylistDto } from './dto/updatePlaylistDto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('playlist')
 @Controller('playlist')
 export class PlaylistControler {
-    constructor(private readonly playlistService: PlaylistService) {}
+  constructor(private readonly playlistService: PlaylistService) {}
 
-    @Get()
-    async find() {
-        return this.playlistService.findAll();
-    }
+  @Get()
+  async find() {
+    return this.playlistService.findAll();
+  }
 
-    @Get(':id')
-    async findById(@Param('id')id: number) {
-        return this.playlistService.findById(id);
-    }
+  @Get(':id')
+  async findById(@Param('id') id: number) {
+    return this.playlistService.findById(id);
+  }
 
-    @Post()
-    async store(@Body() createPlaylistDto : CreatePlaylistDto) {
-        return await this.playlistService.create(createPlaylistDto);
-    }
+  @Get(':id/playlistItems')
+  async findPlaylistItems(@Param('id') id: number) {
+    return await this.playlistService.findPlaylistItems(
+      await this.playlistService.findById(id),
+    );
+  }
 
-    @Put(':id')
-    async update(
-        @Param('id') id: number,
-        @Body() updatePlaylistDto: UpdatePlaylistDto,
-    ) {
-        return await this.playlistService.update(id, updatePlaylistDto);
-    }
+  @Post()
+  async store(@Body() createPlaylistDto: CreatePlaylistDto) {
+    return await this.playlistService.create(createPlaylistDto);
+  }
 
-    @Delete(':id')
-    async delete(@Param('id')id: number) {
-        return this.playlistService.delete(id);
-    }
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() updatePlaylistDto: UpdatePlaylistDto,
+  ) {
+    return await this.playlistService.update(id, updatePlaylistDto);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: number) {
+    return this.playlistService.delete(id);
+  }
 }

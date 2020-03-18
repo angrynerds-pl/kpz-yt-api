@@ -1,3 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class UpdatePlaylistDto {
-    name: string;
+  @ApiProperty({ example: 'favourite' })
+  name: string;
 }

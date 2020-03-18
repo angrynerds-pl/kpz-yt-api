@@ -1,3 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CreatePlaylistDto {
-    readonly name: string;
+  @ApiProperty({ example: 'favorites' })
+  readonly name: string;
 }
