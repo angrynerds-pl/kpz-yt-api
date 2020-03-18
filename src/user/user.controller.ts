@@ -11,15 +11,15 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-// import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-// import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
+import { User } from './entities/user.entity';
 
-@Controller('user')
-@ApiTags('user')
+@Controller('users')
+@ApiTags('users')
 @ApiBearerAuth()
-// @UseGuards(AuthGuard())
+@UseGuards(new JwtAuthGuard())
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
@@ -43,7 +43,7 @@ export class UserController {
   async update(
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
-    // @AuthUser() authUser: User,
+    @AuthUser() authUser: User,
   ) {
     // const user = await this.usersService.update(id, updateUserDto, authUser);
     // return user;

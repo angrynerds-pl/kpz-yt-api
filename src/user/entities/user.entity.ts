@@ -12,14 +12,14 @@ export class User {
   public password?: string;
 
   @Column()
-  firstName: string;
+  firstname: string;
 
   @Column()
-  lastName: string;
+  lastname: string;
 
   // Relations
 
-  @OneToMany( 
+  @OneToMany(
     type => Playlist,
     playlist => playlist.user,
     { onDelete: 'CASCADE' },
