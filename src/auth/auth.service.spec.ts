@@ -6,11 +6,12 @@ import { User } from '../user/entities/user.entity';
 
 import * as bcryptjs from 'bcryptjs';
 jest.mock('bcryptjs');
-(bcryptjs.compare as jest.Mock).mockReturnValue(true);
 
 describe('AuthService', () => {
   let service: AuthService;
-  const jwtServiceMock = {};
+  const jwtServiceMock = {
+    sign: jest.fn(),
+  };
   const userServiceMock = {
     findForAuth: jest.fn(),
   };
@@ -76,5 +77,14 @@ describe('AuthService', () => {
     expect(userServiceMock.findForAuth).toBeCalledWith('test');
     expect(bcryptjs.compare).toBeCalledWith('test', 'passw');
     expect(result).toBeUndefined();
+  });
+
+  it('should call sign method', async () => {
+    const user = new User();
+    user.id = 1;
+    const result: any = await service.login(user);
+
+    expect(jwtServiceMock.sign).toBeCalledWith({ user, sub: user.id });
+    expect(result).toHaveProperty('access_token');
   });
 });
