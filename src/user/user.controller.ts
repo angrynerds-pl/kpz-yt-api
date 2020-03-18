@@ -27,7 +27,7 @@ export class UserController {
 
   @Get()
   async find() {
-    return { data: this.usersService.findAll() };
+    return { data: await this.usersService.findAll() };
   }
 
   @Get(':id')
@@ -68,7 +68,7 @@ export class UserController {
     if (authUser.id != userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const foundPlaylists = this.usersService.findPlaylists(authUser);
+    const foundPlaylists = await this.usersService.findPlaylists(authUser);
     return { data: foundPlaylists };
   }
 }
