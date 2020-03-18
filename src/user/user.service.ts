@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Playlist } from '../playlist/entities/playlist.entity';
 import { User } from './entities/user.entity';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository, FindManyOptions, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -31,10 +31,11 @@ export class UserService {
   }
 
   async findForAuth(username: string): Promise<User | undefined> {
-    const user = await this.userRepository.findOne({
-      where: { username },
-      select: ['id', 'username', 'password'],
-    });
+    const user = await getConnection()
+      .createQueryBuilder(User, 'user')
+      .addSelect('user.password')
+      .where('user.username = :username', { username })
+      .getOne();
     if (!user) {
       throw new NotFoundException();
     }

@@ -8,19 +8,20 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-// import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-// import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
+import { User } from './entities/user.entity';
 
-@Controller('user')
-@ApiTags('user')
+@Controller('users')
+@ApiTags('users')
 @ApiBearerAuth()
-// @UseGuards(AuthGuard())
+@UseGuards(new JwtAuthGuard())
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
@@ -44,8 +45,7 @@ export class UserController {
   async update(
     @Param('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
-    authUser: User,
-    // TODO: Add @AuthUser decorator to authUser param
+    @AuthUser() authUser: User,
   ) {
     if (authUser.id != userId) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
