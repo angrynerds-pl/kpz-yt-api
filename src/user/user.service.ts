@@ -15,8 +15,7 @@ import * as bcryptjs from 'bcryptjs';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    private readonly playlistRepository: Repository<Playlist>,
+    private readonly userRepository: Repository<User>, //private readonly playlistRepository: Repository<Playlist>,
   ) {}
 
   async findAll(options?: FindManyOptions<User>): Promise<User[]> {
@@ -73,11 +72,11 @@ export class UserService {
   }
 
   async findPlaylists(targetUser: User): Promise<Playlist[]> {
-    return this.playlistRepository.find({
+    return; /* this.playlistRepository.find({
       where: {
         user: targetUser,
       },
-    });
+    }); */
   }
 
   private async hashPassword(
