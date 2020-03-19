@@ -1,9 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { JwtOptionsFactory, JwtModuleOptions } from '@nestjs/jwt';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import {
+  AuthOptionsFactory,
+  AuthOptions,
+} from './contracts/auth-options-factory.contract';
 
 @Injectable()
-export class ConfigService implements TypeOrmOptionsFactory, JwtOptionsFactory {
+export class ConfigService
+  implements TypeOrmOptionsFactory, JwtOptionsFactory, AuthOptionsFactory {
+  createAuthOptions(): AuthOptions {
+    return {
+      enabled: process.env['AUTH_ENABLED'] == 'false',
+    };
+  }
+
   createJwtOptions(): JwtModuleOptions {
     return {
       secret: process.env['JWT_SECRET'] || 'secret',

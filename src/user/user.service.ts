@@ -10,13 +10,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcryptjs from 'bcryptjs';
+import { CanAffect } from 'src/auth/contracts/can-affect.contact';
+import { ConfigService } from 'src/config/config.service';
 
 @Injectable()
-export class UserService {
+export class UserService implements CanAffect<User> {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>, //private readonly playlistRepository: Repository<Playlist>,
+    private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService, //private readonly playlistRepository: Repository<Playlist>,
   ) {}
+
+  canAffect(user: User, entity: User | { id: number }): boolean {
+    return (
+      user.id === entity.id && this.configService.createAuthOptions().enabled
+    );
+  }
 
   async findAll(options?: FindManyOptions<User>): Promise<User[]> {
     return await this.userRepository.find(options);
