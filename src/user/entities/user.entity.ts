@@ -1,13 +1,28 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Playlist } from '../../playlist/entities/playlist.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
+
+  @Column({ unique: true })
+  public username: string;
+
+  @Column({ select: false })
+  public password?: string;
 
   @Column()
-  firstName: string;
+  firstname: string;
 
   @Column()
-  lastName: string;
+  lastname: string;
+
+  // Relations
+
+  @OneToMany(
+    type => Playlist,
+    playlist => playlist.user,
+    { onDelete: 'CASCADE' },
+  )
+  public playlists: Playlist[];
 }

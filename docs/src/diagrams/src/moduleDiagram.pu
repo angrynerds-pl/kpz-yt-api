@@ -5,8 +5,8 @@ component "AppModule" as app_module
 component "ConfigModule" as config_module
 component "AuthModule" as auth_module
 component "UsersModule" as users_module
-component "ListsModule" as lists_module
-component "ListItemsModule" as list_items_module
+component "PlaylistsModule" as lists_module
+component "PlaylistItemsModule" as list_items_module
 
 app_module .-> auth_module
 app_module .-> users_module
