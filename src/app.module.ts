@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from './config/config.module';
 import { UserModule } from './user/user.module';
 import { PlaylistModule } from './playlist/playlist.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,8 +14,9 @@ import { PlaylistModule } from './playlist/playlist.module';
       imports: [ConfigModule],
       useExisting: ConfigService,
     }),
-    UserModule,
+    AuthModule,
     PlaylistModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

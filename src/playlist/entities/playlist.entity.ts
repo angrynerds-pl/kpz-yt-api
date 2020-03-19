@@ -20,14 +20,14 @@ export class Playlist {
   @ManyToOne(
     type => User,
     user => user.playlists,
-    { onDelete: 'CASCADE', eager: true},
+    { onDelete: 'CASCADE', eager: true, nullable: false },
   )
   public user: User;
 
   @OneToMany(
     type => PlaylistItem,
     playlistItem => playlistItem.playlist,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE', nullable: false },
   )
   public playlistItem: PlaylistItem[];
 }

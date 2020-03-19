@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Playlist } from '../../playlist/entities/playlist.entity';
-import { ApiProperty } from '@nestjs/swagger';
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()

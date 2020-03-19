@@ -5,7 +5,6 @@ import { Playlist } from './entities/playlist.entity';
 import { PlaylistItem } from 'src/playlist-item/entities/playlist-item.entity';
 import { User } from '../user/entities/user.entity';
 
-
 describe('Playlist Controler', () => {
   let controller: PlaylistControler;
   const playlistServiceMock = {
@@ -24,8 +23,8 @@ describe('Playlist Controler', () => {
         {
           provide: PlaylistService,
           useValue: playlistServiceMock,
-        }
-      ]
+        },
+      ],
     }).compile();
 
     controller = module.get<PlaylistControler>(PlaylistControler);
@@ -38,7 +37,7 @@ describe('Playlist Controler', () => {
   it('should call findAll', async () => {
     const playlists: Playlist[] = [];
     playlistServiceMock.findAll = jest.fn(() => Promise.resolve(playlists));
-    
+
     const result = await controller.findAll();
 
     expect(Array.isArray(result.data)).toBe(true);
@@ -61,7 +60,9 @@ describe('Playlist Controler', () => {
   it('should call findPlaylistItems', async () => {
     const playlistItems: PlaylistItem[] = [];
     const id = 0;
-    playlistServiceMock.findPlaylistItems = jest.fn(() => Promise.resolve(playlistItems));
+    playlistServiceMock.findPlaylistItems = jest.fn(() =>
+      Promise.resolve(playlistItems),
+    );
 
     const result = await controller.findPlaylistItems(0);
 
@@ -75,7 +76,7 @@ describe('Playlist Controler', () => {
     const playlist = new Playlist();
     const user = new User();
     user.id = 0;
-    const dto = {name: 'test', user: user};
+    const dto = { name: 'test', user: user };
     playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
 
     const result = await controller.store(dto);
@@ -90,7 +91,7 @@ describe('Playlist Controler', () => {
     const playlist = new Playlist();
     const user = new User();
     user.id = 0;
-    const dto = {name: 'test', user: user};
+    const dto = { name: 'test', user: user };
     const id = 0;
     playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
 
