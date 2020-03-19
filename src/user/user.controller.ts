@@ -6,9 +6,8 @@ import {
   Param,
   Put,
   Delete,
-  HttpException,
-  HttpStatus,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -46,27 +45,27 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @AuthUser() authUser: User,
   ) {
-    if (authUser.id != userId) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
     }
     const updatedUser = await this.usersService.update(authUser, updateUserDto);
     return { data: updatedUser };
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {
-    const userToDelete = await this.usersService.findById(id);
+  async delete(@Param('id') userId: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
+    }
+    const userToDelete = await this.usersService.findById(userId);
     const deletedUser = await this.usersService.delete(userToDelete);
     return { data: deletedUser };
   }
 
   @Get(':id/playlists')
-  async findPlaylists(
-    @Param('id') userId: number,
-    @AuthUser() authUser: User,
-  ) {
-    if (authUser.id != userId) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  async findPlaylists(@Param('id') userId: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
     }
     const foundPlaylists = await this.usersService.findPlaylists(authUser);
     return { data: foundPlaylists };
