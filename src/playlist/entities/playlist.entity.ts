@@ -20,7 +20,7 @@ export class Playlist {
   @ManyToOne(
     type => User,
     user => user.playlists,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE', eager: true},
   )
   public user: User;
 

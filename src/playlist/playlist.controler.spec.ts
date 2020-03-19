@@ -3,6 +3,8 @@ import { PlaylistControler } from './playlist.controler';
 import { PlaylistService } from './playlist.service';
 import { Playlist } from './entities/playlist.entity';
 import { PlaylistItem } from 'src/playlist-item/entities/playlist-item.entity';
+import { User } from '../user/entities/user.entity';
+
 
 describe('Playlist Controler', () => {
   let controller: PlaylistControler;
@@ -71,7 +73,9 @@ describe('Playlist Controler', () => {
 
   it('should call create', async () => {
     const playlist = new Playlist();
-    const dto = {name: 'test'};
+    const user = new User();
+    user.id = 0;
+    const dto = {name: 'test', user: user};
     playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
 
     const result = await controller.store(dto);
@@ -84,7 +88,9 @@ describe('Playlist Controler', () => {
 
   it('should call update', async () => {
     const playlist = new Playlist();
-    const dto = {name: 'test'};
+    const user = new User();
+    user.id = 0;
+    const dto = {name: 'test', user: user};
     const id = 0;
     playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
 

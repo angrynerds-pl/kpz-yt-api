@@ -3,9 +3,14 @@ import { PlaylistService } from './playlist.service';
 import { Playlist } from './entities/playlist.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import { User } from '../user/entities/user.entity';
 
 describe('Playlist Service', () => {
   let service: PlaylistService;
+  const mockUserService = {
+    findById: jest.fn(),
+  }
   const mockPlaylistRepository = {
     find: jest.fn(),
     findOne: jest.fn(),
@@ -22,7 +27,11 @@ describe('Playlist Service', () => {
         {
           provide: getRepositoryToken(Playlist),
           useValue: mockPlaylistRepository
-        }
+        },
+        {
+          provide: UserService,
+          useValue: mockUserService,
+        },
       ]
 
     }).compile();
@@ -34,7 +43,7 @@ describe('Playlist Service', () => {
     expect(service).toBeDefined();
   });
 
-  it('should call find', async () => {
+  it('findAll - should call find', async () => {
     const playlists: Playlist[] = [];
     mockPlaylistRepository.find = jest.fn(() => Promise.resolve(playlists));
     
@@ -45,7 +54,7 @@ describe('Playlist Service', () => {
     expect(mockPlaylistRepository.find).toBeCalledTimes(1);
   });
 
-  it('should call findOne and return if found', async () => {
+  it('findById - should call findOne and return if found', async () => {
     const playlist = new Playlist();
     const id = 0;
     mockPlaylistRepository.findOne = jest.fn(() => Promise.resolve(playlist));
@@ -58,7 +67,7 @@ describe('Playlist Service', () => {
     expect(mockPlaylistRepository.findOne).toBeCalledWith(id);
   });
 
-  it('should call findOne and throw when not found', async () => {
+  it('findById - should call findOne and throw when not found', async () => {
     const playlist = new Playlist();
     const id = 0;
     mockPlaylistRepository.findOne = jest.fn(() => undefined);
@@ -77,7 +86,7 @@ describe('Playlist Service', () => {
     
   });
 
-  it('should return empty array', async () => {
+  it('findPlaylistItems - should return empty array', async () => {
     const playlists: Playlist[] = [];
     const id = 0;
     const result = await service.findPlaylistItems(id);
@@ -87,14 +96,17 @@ describe('Playlist Service', () => {
     
   });
 
-  it('should call save and create', async () => {
+  it('create - should check if user exists then call save and create', async () => {
     const playlist = new Playlist();
     const argPlaylist = new Playlist();
+    const user = new User();
+    user.id = 0;
     argPlaylist.id = 2;
-    const dto = { name:'test' }
+    const dto = { name:'test', user: user };
 
     mockPlaylistRepository.save = jest.fn(() => playlist);
     mockPlaylistRepository.create = jest.fn(() => argPlaylist);
+    mockUserService.findById = jest.fn(() => user);
 
     const result = await service.create(dto);
 
@@ -105,10 +117,125 @@ describe('Playlist Service', () => {
     expect(mockPlaylistRepository.save).not.toBeCalledWith(playlist);
     expect(mockPlaylistRepository.create).toBeCalledTimes(1);
     expect(mockPlaylistRepository.create).toBeCalledWith(dto);
+    expect(mockUserService.findById).toBeCalledTimes(1);
+    expect(mockUserService.findById).toBeCalledWith(user.id);
     
   });
 
-  it('should call findById then delete when found', async () => {
+  it('create - should check if user exists, if not exception should be thrown', async () => {
+    const playlist = new Playlist();
+    const argPlaylist = new Playlist();
+    const user = new User();
+    user.id = 0;
+    argPlaylist.id = 2;
+    const dto = { name:'test', user: user };
+
+    mockPlaylistRepository.save = jest.fn(() => playlist);
+    mockPlaylistRepository.create = jest.fn(() => argPlaylist);
+    mockUserService.findById = jest.fn(() => {throw new NotFoundException()});
+
+    let result;
+    try{
+      result = await service.create(dto);
+    } catch (e)
+    {
+      expect(e).toBeInstanceOf(NotFoundException);
+    }
+
+    expect(result).toBe(undefined);
+
+    expect(mockPlaylistRepository.save).toBeCalledTimes(0);
+    expect(mockPlaylistRepository.create).toBeCalledTimes(0);
+    expect(mockUserService.findById).toBeCalledTimes(1);
+    expect(mockUserService.findById).toBeCalledWith(user.id);
+    
+  });
+
+  it('update - should check if user exists, then call findOne, merge and save', async () => {
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 0;
+    const dto = {name: 'test', user: user};
+    const id = 0;
+
+    mockPlaylistRepository.findOne = jest.fn(() => playlist);
+    mockPlaylistRepository.merge = jest.fn((arg: Playlist) => arg);
+    mockPlaylistRepository.save = jest.fn((arg: Playlist) => arg);
+    mockUserService.findById = jest.fn(() => user);
+
+    const result = await service.update(id, dto);
+    
+
+    expect(result).toBe(playlist);
+
+    expect(mockPlaylistRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.findOne).toBeCalledWith(id);
+    expect(mockPlaylistRepository.merge).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.merge).toBeCalledWith(playlist, dto);
+    expect(mockPlaylistRepository.save).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.save).toBeCalledWith(playlist);
+    expect(mockUserService.findById).toBeCalledTimes(1);
+    expect(mockUserService.findById).toBeCalledWith(user.id);
+    
+  });
+
+  it('update - should check if user exists, if not exception should be thrown', async () => {
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 0;
+    const dto = {name: 'test', user: user};
+    const id = 0;
+
+    mockPlaylistRepository.findOne = jest.fn(() => playlist);
+    mockPlaylistRepository.merge = jest.fn((arg: Playlist) => arg);
+    mockPlaylistRepository.save = jest.fn((arg: Playlist) => arg);
+    mockUserService.findById = jest.fn(() => {throw new NotFoundException()});
+
+    let result;
+    try{
+      result = await service.update(id, dto);
+    } catch (e)
+    {
+      expect(e).toBeInstanceOf(NotFoundException);
+    }
+    
+
+    expect(result).toBe(undefined);
+
+    expect(mockPlaylistRepository.findOne).toBeCalledTimes(0);
+    expect(mockPlaylistRepository.merge).toBeCalledTimes(0);
+    expect(mockPlaylistRepository.save).toBeCalledTimes(0);
+    expect(mockUserService.findById).toBeCalledTimes(1);
+    expect(mockUserService.findById).toBeCalledWith(user.id);
+    
+  });
+
+  it('update - should omit user existence check and call findById, merge and save', async () => {
+    const playlist = new Playlist();
+    const dto = {name: 'test', user: undefined};
+    const id = 0;
+
+    mockPlaylistRepository.findOne = jest.fn(() => playlist);
+    mockPlaylistRepository.merge = jest.fn((arg: Playlist) => arg);
+    mockPlaylistRepository.save = jest.fn((arg: Playlist) => arg);
+    mockUserService.findById = jest.fn(() => {throw new NotFoundException()});
+
+    const result = await service.update(id, dto);
+    
+
+    expect(result).toBe(playlist);
+
+    expect(mockPlaylistRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.findOne).toBeCalledWith(id);
+    expect(mockPlaylistRepository.merge).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.merge).toBeCalledWith(playlist, dto);
+    expect(mockPlaylistRepository.save).toBeCalledTimes(1);
+    expect(mockPlaylistRepository.save).toBeCalledWith(playlist);
+    expect(mockUserService.findById).toBeCalledTimes(0);
+    
+  });
+
+  it('delete - should call findById then delete when found', async () => {
     const playlist = new Playlist();
     const id = 0;
 
@@ -126,27 +253,7 @@ describe('Playlist Service', () => {
     
   });
 
-  it('should call findById then merge and save when found', async () => {
-    const playlist = new Playlist();
-    const dto = {name: 'test'};
-    const id = 0;
-
-    mockPlaylistRepository.findOne = jest.fn(() => playlist);
-    mockPlaylistRepository.merge = jest.fn((arg: Playlist) => arg);
-    mockPlaylistRepository.save = jest.fn((arg: Playlist) => arg);
-
-    const result = await service.update(id, dto);
-
-    expect(result).toBe(playlist);
-
-    expect(mockPlaylistRepository.findOne).toBeCalledTimes(1);
-    expect(mockPlaylistRepository.findOne).toBeCalledWith(id);
-    expect(mockPlaylistRepository.merge).toBeCalledTimes(1);
-    expect(mockPlaylistRepository.merge).toBeCalledWith(playlist, dto);
-    expect(mockPlaylistRepository.save).toBeCalledTimes(1);
-    expect(mockPlaylistRepository.save).toBeCalledWith(playlist);
-    
-  });
+  
 
 
 

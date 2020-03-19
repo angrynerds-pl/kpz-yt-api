@@ -4,7 +4,7 @@ import { Playlist } from '../../playlist/entities/playlist.entity';
 @Entity()
 export class PlaylistItem {
   @PrimaryGeneratedColumn()
-  public id?: number;
+  public id: number;
 
   //Relations
 

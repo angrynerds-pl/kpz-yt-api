@@ -30,7 +30,7 @@ export class PlaylistControler {
     return { data };
   }
 
-  @Get(':id/playlistItems')
+  @Get(':id/playlist-items')
   async findPlaylistItems(@Param('id') id: number) {
     const data = await this.playlistService.findPlaylistItems(id);
     return { data };
