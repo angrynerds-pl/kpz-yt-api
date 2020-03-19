@@ -48,7 +48,7 @@ export class UserController {
     if (!this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
-    const updatedUser = await this.usersService.update(authUser, updateUserDto);
+    const updatedUser = await this.usersService.update(userId, updateUserDto);
     return { data: updatedUser };
   }
 
@@ -57,8 +57,7 @@ export class UserController {
     if (!this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
-    const userToDelete = await this.usersService.findById(userId);
-    const deletedUser = await this.usersService.delete(userToDelete);
+    const deletedUser = await this.usersService.delete(userId);
     return { data: deletedUser };
   }
 

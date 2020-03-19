@@ -18,7 +18,7 @@ export class UserService implements CanAffect<User> {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly configService: ConfigService, //private readonly playlistRepository: Repository<Playlist>,
+    private readonly configService: ConfigService,
   ) {}
 
   canAffect(user: User, entity: User | { id: number }): boolean {
@@ -31,7 +31,7 @@ export class UserService implements CanAffect<User> {
     return await this.userRepository.find(options);
   }
 
-  async findById(id: number): Promise<User | undefined> {
+  async findById(id: number): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
       throw new NotFoundException();
@@ -65,27 +65,30 @@ export class UserService implements CanAffect<User> {
     }
   }
 
-  async update(userToUpdate: User, dto: UpdateUserDto): Promise<User> {
+  async update(userId: number, dto: UpdateUserDto): Promise<User> {
     if (dto.password) {
       dto.password = await this.hashPassword(dto);
     }
+    const userToUpdate = await this.findById(userId);
     const updatedUser = this.userRepository.merge(userToUpdate, dto);
     await this.userRepository.save(updatedUser);
     delete updatedUser.password;
     return updatedUser;
   }
 
-  async delete(userToDelete: User): Promise<User> {
+  async delete(userId: number): Promise<User> {
+    const userToDelete = await this.findById(userId);
     this.userRepository.delete(userToDelete);
     return userToDelete;
   }
 
   async findPlaylists(targetUser: User): Promise<Playlist[]> {
-    return; /* this.playlistRepository.find({
+    /* this.playlistRepository.find({
       where: {
         user: targetUser,
       },
     }); */
+    return Promise.resolve([]);
   }
 
   private async hashPassword(
