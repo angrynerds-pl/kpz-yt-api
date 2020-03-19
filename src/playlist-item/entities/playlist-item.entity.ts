@@ -9,18 +9,19 @@ import {
   @Entity()
   export class PlaylistItem {
     @PrimaryGeneratedColumn()
-    public id?: number;
+    public id: number;
 
     @Column()
     public ytID: string;
 
     @Column()
-    public title?: string;
+    public title: string;
   
     // Relations
     @ManyToOne(
       type => Playlist,
-      playlist => playlist.playlistItems )
+      playlist => playlist.playlistItems,
+      {onDelete: 'CASCADE'}, )
       public playlist: Playlist;
   }
   

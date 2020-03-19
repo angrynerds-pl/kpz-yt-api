@@ -1,7 +1,6 @@
 import { 
     Injectable,
-    NotFoundException, 
-    ConflictException} from '@nestjs/common';
+    NotFoundException, } from '@nestjs/common';
 import { CreatePlaylistItemDto } from './dto/create-playlist-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlaylistItem } from './entities/playlist-item.entity';
@@ -16,21 +15,13 @@ export class PlaylistItemService {
     ) {}
 
     async create(itemDTO: CreatePlaylistItemDto): Promise<PlaylistItem> {
-        const count = await this.playlistItemRepository.count({
-            ytID: itemDTO.ytID,
-        });
-        if(count !== 0) {
-            throw new ConflictException({
-                exists: ['youtube movie ID'],
-            });
-        }
-
         const playlistItem = this.playlistItemRepository.create(itemDTO);
+
         return await this.playlistItemRepository.save(playlistItem);
     }
 
     async findAll(options?: FindManyOptions<PlaylistItem>): Promise<PlaylistItem[]> {
-        return await this.playlistItemRepository.find(options);
+        return this.playlistItemRepository.find(options);
     }
 
     async findById(id: number): Promise<PlaylistItem | undefined> {
