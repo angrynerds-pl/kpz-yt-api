@@ -10,8 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcryptjs from 'bcryptjs';
-import { CanAffect } from 'src/auth/contracts/can-affect.contact';
-import { ConfigService } from 'src/config/config.service';
+import { CanAffect } from '../auth/contracts/can-affect.contact';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class UserService implements CanAffect<User> {

@@ -14,6 +14,7 @@ describe('User Controller', () => {
     update: jest.fn(),
     delete: jest.fn(),
     findPlaylists: jest.fn(),
+    canAffect: jest.fn(() => true),
   };
 
   beforeEach(async () => {
@@ -50,7 +51,7 @@ describe('User Controller', () => {
       username: 'demouser',
       password: 'topsecret',
       firstname: 'John',
-      surname: 'Smith',
+      lastname: 'Smith',
     };
 
     userServiceMock.create = jest.fn(() => Promise.resolve(expected));
@@ -65,7 +66,7 @@ describe('User Controller', () => {
     const userId = 0;
     const dto = {
       firstname: 'John',
-      surname: 'Smith',
+      lastname: 'Smith',
     };
     const authUser = new User();
     authUser.id = userId;
@@ -85,7 +86,7 @@ describe('User Controller', () => {
 
     userServiceMock.delete = jest.fn(() => Promise.resolve(expected));
 
-    const result = await controller.delete(userId);
+    const result = await controller.delete(userId, expected);
 
     expect(result.data).toBe(expected);
   });

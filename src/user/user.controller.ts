@@ -45,7 +45,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @AuthUser() authUser: User,
   ) {
-    if (this.usersService.canAffect(authUser, { id: userId })) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const updatedUser = await this.usersService.update(authUser, updateUserDto);
@@ -54,7 +54,7 @@ export class UserController {
 
   @Delete(':id')
   async delete(@Param('id') userId: number, @AuthUser() authUser: User) {
-    if (this.usersService.canAffect(authUser, { id: userId })) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const userToDelete = await this.usersService.findById(userId);
@@ -64,7 +64,7 @@ export class UserController {
 
   @Get(':id/playlists')
   async findPlaylists(@Param('id') userId: number, @AuthUser() authUser: User) {
-    if (this.usersService.canAffect(authUser, { id: userId })) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const foundPlaylists = await this.usersService.findPlaylists(authUser);
