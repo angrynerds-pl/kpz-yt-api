@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
+import { PlaylistService } from '../playlist/playlist.service';
+import { ForbiddenException } from '@nestjs/common';
 import { Playlist } from '../playlist/entities/playlist.entity';
 
 describe('User Controller', () => {
@@ -13,14 +15,20 @@ describe('User Controller', () => {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-    findPlaylists: jest.fn(),
     canAffect: jest.fn(() => true),
+  };
+
+  const playlistServiceMock = {
+    findPlaylistsForUser: jest.fn(),
   };
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [{ provide: UserService, useValue: userServiceMock }],
+      providers: [
+        { provide: UserService, useValue: userServiceMock },
+        { provide: PlaylistService, useValue: playlistServiceMock },
+      ],
     }).compile();
 
     controller = moduleRef.get<UserController>(UserController);
@@ -30,7 +38,7 @@ describe('User Controller', () => {
     const expected = [new User(), new User()];
     userServiceMock.findAll = jest.fn(() => Promise.resolve(expected));
 
-    const result = await controller.find();
+    const result = await controller.find(new User());
 
     expect(result.data).toBe(expected);
   });
@@ -40,9 +48,20 @@ describe('User Controller', () => {
     const expected = new User();
     userServiceMock.findById = jest.fn(() => Promise.resolve(expected));
 
-    const result = await controller.findOne(userId);
+    const result = await controller.findOne(userId, new User());
 
     expect(result.data).toBe(expected);
+  });
+
+  it('find user by id cannot affect', async () => {
+    const userId = 321;
+    userServiceMock.canAffect = jest.fn().mockReturnValueOnce(false);
+
+    const authUser = new User();
+
+    await expect(controller.findOne(userId, authUser)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 
   it('create user', async () => {
@@ -53,6 +72,7 @@ describe('User Controller', () => {
       firstname: 'John',
       lastname: 'Smith',
     };
+    userServiceMock.canAffect = jest.fn().mockReturnValueOnce(true);
 
     userServiceMock.create = jest.fn(() => Promise.resolve(expected));
 
@@ -71,6 +91,7 @@ describe('User Controller', () => {
     const authUser = new User();
     authUser.id = userId;
 
+    userServiceMock.canAffect = jest.fn().mockReturnValueOnce(true);
     userServiceMock.update = jest.fn((userId, dto) =>
       Promise.resolve(expected),
     );
@@ -86,6 +107,7 @@ describe('User Controller', () => {
 
     userServiceMock.delete = jest.fn(() => Promise.resolve(expected));
 
+    userServiceMock.canAffect = jest.fn().mockReturnValueOnce(true);
     const result = await controller.delete(userId, expected);
 
     expect(result.data).toBe(expected);
@@ -97,8 +119,11 @@ describe('User Controller', () => {
     const authUser = new User();
     authUser.id = userId;
 
-    userServiceMock.findPlaylists = jest.fn(() => Promise.resolve(expected));
+    playlistServiceMock.findPlaylistsForUser = jest.fn(() =>
+      Promise.resolve(expected),
+    );
 
+    userServiceMock.canAffect = jest.fn().mockReturnValueOnce(true);
     const result = await controller.findPlaylists(userId, authUser);
 
     expect(result.data).toBe(expected);

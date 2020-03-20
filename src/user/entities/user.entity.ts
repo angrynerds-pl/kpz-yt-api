@@ -1,7 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Playlist } from '../../playlist/entities/playlist.entity';
+import { Identyficable } from '../../common/interfaces/identyficable';
+
 @Entity()
-export class User {
+export class User implements Identyficable {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -9,7 +11,7 @@ export class User {
   public username: string;
 
   @Column({ select: false })
-  public password?: string;
+  public password: string;
 
   @Column()
   firstname: string;
@@ -20,7 +22,7 @@ export class User {
   // Relations
 
   @OneToMany(
-    type => Playlist,
+    () => Playlist,
     playlist => playlist.user,
     { onDelete: 'CASCADE' },
   )

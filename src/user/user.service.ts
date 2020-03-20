@@ -2,8 +2,9 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
-import { Playlist } from '../playlist/entities/playlist.entity';
 import { User } from './entities/user.entity';
 import { Repository, FindManyOptions, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,8 +23,11 @@ export class UserService implements CanAffect<User> {
   ) {}
 
   canAffect(user: User, entity: User | { id: number }): boolean {
+    console.log(user, entity);
+
     return (
-      user.id === entity.id && this.configService.createAuthOptions().enabled
+      parseInt(user.id as any) === parseInt(entity.id as any) ||
+      !this.configService.createAuthOptions().enabled
     );
   }
 
@@ -80,15 +84,6 @@ export class UserService implements CanAffect<User> {
     const userToDelete = await this.findById(userId);
     this.userRepository.delete(userToDelete);
     return userToDelete;
-  }
-
-  async findPlaylists(targetUser: User): Promise<Playlist[]> {
-    /* this.playlistRepository.find({
-      where: {
-        user: targetUser,
-      },
-    }); */
-    return Promise.resolve([]);
   }
 
   private async hashPassword(
