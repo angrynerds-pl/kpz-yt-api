@@ -1,8 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Playlist } from '../../playlist/entities/playlist.entity';
+import { Identyficable } from '../../common/interfaces/identyficable';
 
 @Entity()
-export class User {
+export class User implements Identyficable {
   @PrimaryGeneratedColumn()
   public id: number;
 
