@@ -4,11 +4,12 @@
 
 | Purpose              | Request                     |
 | :------------------- | :-------------------------- |
-| Create user          | `POST /users`               |
+| Read users           | `GET /users`                |
 | Read user            | `GET /users/{id}`           |
+| Get user's playlists | `GET /users/{id}/playlists` |
+| Create user          | `POST /users`               |
 | Update user          | `PUT /users/{id}`           |
 | Delete user          | `DELETE /users/{id}`        |
-| Get user's playlists | `GET /users/{id}/playlists` |
 
 ## Sessions
 
@@ -18,29 +19,21 @@
 
 ## Playlists
 
-| Purpose         | Request                  |
-| :-------------- | :----------------------- |
-| Create playlist | `POST /playlists`        |
-| Read playlists  | `GET /playlists/`        |
-| Read playlist   | `GET /playlists/{id}`    |
-| Update playlist | `PUT /playlists/{id}`    |
-| Delete playlist | `DELETE /playlists/{id}` |
+| Purpose             | Request                              |
+| :------------------ | :----------------------------------- |
+| Read playlists      | `GET /playlists`                     |
+| Read playlist       | `GET /playlists/{id}`                |
+| Read playlist items | `GET /playlists/{id}/playlist-items` |
+| Create playlist     | `POST /playlists`                    |
+| Update playlist     | `PUT /playlists/{id}`                |
+| Delete playlist     | `DELETE /playlists/{id}`             |
 
 ## PlaylistItems
 
-| Purpose              | Request                                               |
-| :------------------- | :---------------------------------------------------- |   
-| Create playlist item | `POST /playlists/{id}/playlist-items`                 |
-| Read playlist items  | `GET /playlist-items`                                 |
-| Read playlist item   | `GET /playlist-items/{id}`                            |
-| Update playlist item | `PUT /playlist-items/{id}`                            |
-| Delete platlist item | `DELETE /playlist-items/{id}`                         |                                         
-
-## Tracks
-
-| Purpose      | Request               |
-| :----------- | :-------------------- |
-| Create track | `POST /tracks`        |
-| Read track   | `GET /tracks/{id}`    |
-| Update track | `PUT /tracks/{id}`    |
-| Delete track | `DELETE /tracks/{id}` |
+| Purpose               | Request                       |
+| :-------------------- | :---------------------------- |
+| Read playlist items   | `GET /playlist-items`         |
+| Read playlist item    | `GET /playlist-items/{id}`    |
+| Create playlist items | `POST /playlist-items`        |
+| Update playlist item  | `PUT /playlist-items/{id}`    |
+| Delete playlist item  | `DELETE /playlist-items/{id}` |

@@ -7,51 +7,81 @@ import {
   Put,
   Delete,
   UseGuards,
+  ForbiddenException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-// import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-// import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { User } from './entities/user.entity';
+import { PlaylistService } from '../playlist/playlist.service';
 
-@Controller('user')
-@ApiTags('user')
+@Controller('users')
+@ApiTags('users')
 @ApiBearerAuth()
-// @UseGuards(AuthGuard())
+@UseGuards(new JwtAuthGuard())
 export class UserController {
-  constructor(private readonly usersService: UserService) {}
+  constructor(
+    private readonly usersService: UserService,
+    @Inject(forwardRef(() => PlaylistService))
+    private readonly playlistService: PlaylistService,
+  ) {}
 
   @Get()
-  async find() {
-    return this.usersService.findAll();
+  async find(@AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: 0 })) {
+      throw new ForbiddenException();
+    }
+    return { data: await this.usersService.findAll() };
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.usersService.findById(id);
+  async findOne(@Param('id') id: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: id })) {
+      throw new ForbiddenException();
+    }
+    return { data: await this.usersService.findById(id) };
   }
 
   @Post()
   async store(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-    return user;
+    return { data: await this.usersService.create(createUserDto) };
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') userId: number,
     @Body() updateUserDto: UpdateUserDto,
-    // @AuthUser() authUser: User,
+    @AuthUser() authUser: User,
   ) {
-    // const user = await this.usersService.update(id, updateUserDto, authUser);
-    // return user;
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
+    }
+    const updatedUser = await this.usersService.update(userId, updateUserDto);
+    return { data: updatedUser };
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {
-    const user = await this.usersService.delete(id);
-    return user;
+  async delete(@Param('id') userId: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
+    }
+    const deletedUser = await this.usersService.delete(userId);
+    return { data: deletedUser };
+  }
+
+  @Get(':id/playlists')
+  async findPlaylists(@Param('id') userId: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: userId })) {
+      throw new ForbiddenException();
+    }
+    const foundPlaylists = await this.playlistService.findPlaylistsForUser(
+      userId,
+    );
+    return { data: foundPlaylists };
   }
 }
