@@ -57,20 +57,20 @@ describe('Playlist Controler', () => {
     expect(playlistServiceMock.findById).toBeCalledWith(id);
   });
 
-  it('should call findPlaylistItems', async () => {
-    const playlistItems: PlaylistItem[] = [];
-    const id = 0;
-    playlistServiceMock.findPlaylistItems = jest.fn(() =>
-      Promise.resolve(playlistItems),
-    );
+  // it('should call findPlaylistItems', async () => {
+  //   const playlistItems: PlaylistItem[] = [];
+  //   const id = 0;
+  //   playlistServiceMock.findPlaylistItems = jest.fn(() =>
+  //     Promise.resolve(playlistItems),
+  //   );
 
-    const result = await controller.findPlaylistItems(0);
+  //   const result = await controller.findPlaylistItems(0);
 
-    expect(Array.isArray(result.data)).toBe(true);
+  //   expect(Array.isArray(result.data)).toBe(true);
 
-    expect(playlistServiceMock.findPlaylistItems).toBeCalledTimes(1);
-    expect(playlistServiceMock.findPlaylistItems).toBeCalledWith(id);
-  });
+  //   expect(playlistServiceMock.findPlaylistItems).toBeCalledTimes(1);
+  //   expect(playlistServiceMock.findPlaylistItems).toBeCalledWith(id);
+  // });
 
   it('should call create', async () => {
     const playlist = new Playlist();

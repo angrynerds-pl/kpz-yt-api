@@ -32,12 +32,18 @@ export class UserController {
   ) {}
 
   @Get()
-  async find() {
+  async find(@AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: 0 })) {
+      throw new ForbiddenException();
+    }
     return { data: await this.usersService.findAll() };
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: number, @AuthUser() authUser: User) {
+    if (!this.usersService.canAffect(authUser, { id: id })) {
+      throw new ForbiddenException();
+    }
     return { data: await this.usersService.findById(id) };
   }
 

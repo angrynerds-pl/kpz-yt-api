@@ -83,15 +83,6 @@ describe('Playlist Service', () => {
     expect(mockPlaylistRepository.findOne).toBeCalledWith(id);
   });
 
-  it('findPlaylistItems - should return empty array', async () => {
-    const playlists: Playlist[] = [];
-    const id = 1;
-    const result = await service.findPlaylistItems(id);
-
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(0);
-  });
-
   it('create - should check if user exists then call save and create', async () => {
     const playlist = new Playlist();
     const argPlaylist = new Playlist();

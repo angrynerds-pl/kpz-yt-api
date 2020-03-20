@@ -32,13 +32,14 @@ export class PlaylistControler {
 
   @Get(':id/playlist-items')
   async findPlaylistItems(@Param('id') id: number) {
-    const data = await this.playlistService.findPlaylistItems(id);
-    return { data };
+    // const data = await this.playlistService.findPlaylistItems(id);
+    // return { data };
+    return { data: [] };
   }
 
   @Post()
   async store(@Body() createPlaylistDto: CreatePlaylistDto) {
-    const data = await this.playlistService.create(createPlaylistDto)
+    const data = await this.playlistService.create(createPlaylistDto);
     return { data };
   }
 
@@ -47,7 +48,7 @@ export class PlaylistControler {
     @Param('id') id: number,
     @Body() updatePlaylistDto: UpdatePlaylistDto,
   ) {
-    const data = await this.playlistService.update(id, updatePlaylistDto)
+    const data = await this.playlistService.update(id, updatePlaylistDto);
     return { data };
   }
 

@@ -21,7 +21,7 @@
 
 | Purpose             | Request                              |
 | :------------------ | :----------------------------------- |
-| Read playlist       | `GET /playlists`                     |
+| Read playlists      | `GET /playlists`                     |
 | Read playlist       | `GET /playlists/{id}`                |
 | Read playlist items | `GET /playlists/{id}/playlist-items` |
 | Create playlist     | `POST /playlists`                    |
