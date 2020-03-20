@@ -3,6 +3,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { Playlist } from '../playlist/entities/playlist.entity';
+import { PlaylistService } from '../playlist/playlist.service';
 
 describe('User Controller', () => {
   let controller: UserController;
@@ -13,14 +14,20 @@ describe('User Controller', () => {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
-    findPlaylists: jest.fn(),
     canAffect: jest.fn(() => true),
+  };
+
+  const playlistServiceMock = {
+    findPlaylistsForUser: jest.fn(),
   };
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [{ provide: UserService, useValue: userServiceMock }],
+      providers: [
+        { provide: UserService, useValue: userServiceMock },
+        { provide: PlaylistService, useValue: playlistServiceMock },
+      ],
     }).compile();
 
     controller = moduleRef.get<UserController>(UserController);
@@ -97,7 +104,9 @@ describe('User Controller', () => {
     const authUser = new User();
     authUser.id = userId;
 
-    userServiceMock.findPlaylists = jest.fn(() => Promise.resolve(expected));
+    playlistServiceMock.findPlaylistsForUser = jest.fn(() =>
+      Promise.resolve(expected),
+    );
 
     const result = await controller.findPlaylists(userId, authUser);
 

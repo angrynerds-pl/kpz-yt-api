@@ -2,6 +2,8 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { Playlist } from '../playlist/entities/playlist.entity';
 import { User } from './entities/user.entity';
@@ -12,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcryptjs from 'bcryptjs';
 import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { ConfigService } from '../config/config.service';
+import { PlaylistService } from '../playlist/playlist.service';
 
 @Injectable()
 export class UserService implements CanAffect<User> {
@@ -80,15 +83,6 @@ export class UserService implements CanAffect<User> {
     const userToDelete = await this.findById(userId);
     this.userRepository.delete(userToDelete);
     return userToDelete;
-  }
-
-  async findPlaylists(targetUser: User): Promise<Playlist[]> {
-    /* this.playlistRepository.find({
-      where: {
-        user: targetUser,
-      },
-    }); */
-    return Promise.resolve([]);
   }
 
   private async hashPassword(
