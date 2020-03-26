@@ -7,9 +7,10 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { PlaylistItem } from '../../playlist-item/entities/playlist-item.entity';
+import { Identyficable } from '../../common/interfaces/identyficable';
 
 @Entity()
-export class Playlist {
+export class Playlist implements Identyficable {
   @PrimaryGeneratedColumn()
   public id: number;
   @Column()
@@ -20,7 +21,7 @@ export class Playlist {
   @ManyToOne(
     type => User,
     user => user.playlists,
-    { onDelete: 'CASCADE', eager: true, nullable: false },
+    { onDelete: 'CASCADE', eager: true, nullable: false }, //TODO: delete eager
   )
   public user: User;
 
@@ -29,5 +30,5 @@ export class Playlist {
     playlistItem => playlistItem.playlist,
     { onDelete: 'CASCADE', nullable: false },
   )
-  public playlistItem: PlaylistItem[];
+  public playlistItems: PlaylistItem[];
 }

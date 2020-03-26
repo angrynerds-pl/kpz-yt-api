@@ -6,16 +6,24 @@ import {
   Body,
   Put,
   Delete,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { CreatePlaylistDto } from './dto/create-playlist-dto';
 import { UpdatePlaylistDto } from './dto/update-playlist-dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PlaylistItemService } from '../playlist-item/playlist-item.service';
+import { CreatePlaylistItemDto } from '../playlist-item/dto/create-playlist-item.dto';
 
 @ApiTags('playlists')
 @Controller('playlists')
-export class PlaylistControler {
-  constructor(private readonly playlistService: PlaylistService) {}
+export class PlaylistController {
+  constructor(
+    private readonly playlistService: PlaylistService,
+    @Inject(forwardRef(() => PlaylistItemService))
+    private readonly playlistItemService: PlaylistItemService,
+  ) {}
 
   @Get()
   async findAll() {
@@ -32,9 +40,18 @@ export class PlaylistControler {
 
   @Get(':id/playlist-items')
   async findPlaylistItems(@Param('id') id: number) {
-    // const data = await this.playlistService.findPlaylistItems(id);
-    // return { data };
-    return { data: [] };
+    const data = await this.playlistItemService.findForPlaylist(id);
+    return { data };
+  }
+
+  @Post(':id/playlist-items')
+  async storePlaylistItem(
+    @Param('id') id: number,
+    @Body() createPlayListItemDTO: CreatePlaylistItemDto,
+  ) {
+    createPlayListItemDTO.playlist.id = id;
+    const data = await this.playlistItemService.create(createPlayListItemDTO);
+    return { data };
   }
 
   @Post()

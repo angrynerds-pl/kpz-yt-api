@@ -1,9 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsInstance, IsDefined, IsOptional, IsAlphanumeric, IsAscii } from 'class-validator';
-import { User } from '../../user/entities/user.entity';
+import {
+  IsNotEmpty,
+  IsString,
+  IsInstance,
+  IsDefined,
+  IsNotEmptyObject,
+  IsOptional,
+  IsAlphanumeric,
+  IsAscii,
+} from 'class-validator';
+import { Identyficable } from '../../common/interfaces/identyficable';
 
 export class UpdatePlaylistDto {
-  @ApiProperty({ example: 'favourite', required: false, nullable: false})
+  @ApiProperty({ example: 'favourite', required: false, nullable: false })
   @IsOptional()
   @IsAlphanumeric()
   @IsAscii()
@@ -11,9 +20,9 @@ export class UpdatePlaylistDto {
   @IsString()
   readonly name?: string;
 
-  @ApiProperty({ example: {id:1}, required: false, nullable: false})
+  @ApiProperty({ example: { id: 1 }, required: false, nullable: false })
   @IsOptional()
-  @IsInstance(User)
   @IsDefined()
-  readonly user?: User;
+  @IsNotEmptyObject()
+  readonly user?: Identyficable;
 }

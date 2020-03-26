@@ -5,6 +5,7 @@ import { ConfigService } from './config/config.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from './config/config.module';
 import { UserModule } from './user/user.module';
+import { PlaylistItemModule } from './playlist-item/playlist-item.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { AuthModule } from './auth/auth.module';
 
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     PlaylistModule,
     UserModule,
+    PlaylistItemModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

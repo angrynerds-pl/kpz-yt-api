@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { Repository } from 'typeorm';
-// import { PlaylistItem } from 'src/playlist-item/entities/playlist-item.entity';
+// import { PlaylistItem } from '../playlist-item/entities/playlist-item.entity';
 import { CreatePlaylistDto } from './dto/create-playlist-dto';
 import { UpdatePlaylistDto } from './dto/update-playlist-dto';
 import { UserService } from '../user/user.service';
@@ -65,7 +65,7 @@ export class PlaylistService {
   async findPlaylistsForUser(userId: number): Promise<Playlist[]> {
     const playlists = await this.playlistRepository.find({
       where: {
-        userId,
+        user: { id: userId },
       },
     });
     return playlists;

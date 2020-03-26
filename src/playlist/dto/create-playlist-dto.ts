@@ -1,18 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsInstance, IsDefined, IsOptional, IsAlphanumeric, IsAscii } from 'class-validator';
-import { User } from '../../user/entities/user.entity';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDefined,
+  IsNotEmptyObject,
+  IsAlphanumeric,
+  IsAscii,
+} from 'class-validator';
+import { Identyficable } from '../../common/interfaces/identyficable';
 
 export class CreatePlaylistDto {
-  @ApiProperty({ example: 'favorites', nullable: false})
+  @ApiProperty({ example: 'favorites', required: true, nullable: false })
   @IsAlphanumeric()
   @IsAscii()
   @IsNotEmpty()
   @IsString()
   readonly name: string;
 
-  @ApiProperty({ example: {id:1}, nullable: false})
-  @IsInstance(User)
+  @ApiProperty({ required: true, nullable: false })
   @IsDefined()
-  
-  readonly user: User;
+  @IsNotEmptyObject()
+  readonly user: Identyficable;
 }

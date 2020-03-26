@@ -28,11 +28,12 @@
 | Update playlist     | `PUT /playlists/{id}`                |
 | Delete playlist     | `DELETE /playlists/{id}`             |
 
-## Playlist items
+## PlaylistItems
 
 | Purpose               | Request                       |
 | :-------------------- | :---------------------------- |
-| Read playlist items   | `GET /playlist-items/{id}`    |
-| Create Playlist items | `POST /playlist-items`        |
-| Update Playlist items | `PUT /playlist-items/{id}`    |
-| Delete Playlist items | `DELETE /playlist-items/{id}` |
+| Read playlist items   | `GET /playlist-items`         |
+| Read playlist item    | `GET /playlist-items/{id}`    |
+| Create playlist items | `POST /playlist-items`        |
+| Update playlist item  | `PUT /playlist-items/{id}`    |
+| Delete playlist item  | `DELETE /playlist-items/{id}` |

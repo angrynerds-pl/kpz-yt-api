@@ -11,7 +11,7 @@ export class ConfigService
   implements TypeOrmOptionsFactory, JwtOptionsFactory, AuthOptionsFactory {
   createAuthOptions(): AuthOptions {
     return {
-      enabled: process.env['AUTH_ENABLED'] == 'false',
+      enabled: process.env['AUTH_ENABLED'] != 'false',
     };
   }
 

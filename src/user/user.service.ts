@@ -5,7 +5,6 @@ import {
   forwardRef,
   Inject,
 } from '@nestjs/common';
-import { Playlist } from '../playlist/entities/playlist.entity';
 import { User } from './entities/user.entity';
 import { Repository, FindManyOptions, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +13,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcryptjs from 'bcryptjs';
 import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { ConfigService } from '../config/config.service';
-import { PlaylistService } from '../playlist/playlist.service';
 
 @Injectable()
 export class UserService implements CanAffect<User> {
@@ -25,8 +23,11 @@ export class UserService implements CanAffect<User> {
   ) {}
 
   canAffect(user: User, entity: User | { id: number }): boolean {
+    console.log(user, entity);
+
     return (
-      user.id === entity.id && this.configService.createAuthOptions().enabled
+      parseInt(user.id as any) === parseInt(entity.id as any) ||
+      !this.configService.createAuthOptions().enabled
     );
   }
 
