@@ -1,0 +1,37 @@
+\section{Architektura aplikacj i użyte technologie}
+
+\subsection{Baza danych}
+W bazie danych znajdują się tabele wraz z danymi encji, których istenie wymuszają przedstawione wymagania. Są nimi:
+\begin{enumerate}[noitemsep]
+    \item User
+    \item Playlist
+    \item PlaylistItem
+\end{enumerate}
+Relacje i pola niebędące definicją struktury bazy przedstawia diagram na rysunku \ref{erd}. Mała liczba encji wynika z faktu, źe potrzebne dane aplikacja pobiera z zewnętrznych źródeł, a główną jej funkcjonalnością jest manipulacja i prezentacja tych danych w interfejsie użytkownika. 
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.5\linewidth]{./diagrams/out/entityDiagram}
+    \caption{Diagram encji}
+    \label{erd}
+\end{figure}
+
+
+\subsection{Architektura i technologie}
+
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.5\linewidth]{./diagrams/out/deployment}
+    \caption{Diagram wdrożenia}
+    \label{deployment}
+\end{figure}
+
+Baza danych aplikacji działa w~oparciu o DBMS \textit{MariaDB}\cite{mariadb}, który bazuje na i~jest kompatybilny z popularnym systemem \textit{MySQL}. 
+
+Środowiskiem uruchomieniowym dla aplikacji udostępniającej RESTful API jest \textit{NodeJS}\cite{NodeJS}. Aplikacja ta oparta jest na frameworku \textit{NestJS}\cite{NestJS}, który pozwala na tworzenie wydajnych i~skalowalnych aplikacji z użyciem języka \textit{TypeScript}. \textit{NestJS} współpracuje z frameworkiem \textit{TypeORM}\cite{typeorm} obsługującym mapowanie obiektowo-relacyjne.
+
+Frontend aplikacji, przesyłany do użytkownika za pomocą serwera plików statycznych, stworzony został z użyciem języka \textit{TypeScript} i~frameworka \textit{VueJS}\cite{VueJS}. Za wygląd aplikacji odpowiada framework \textit{Vuetify}\cite{Vuetify}, który zaopatruje w~gotowy zestaw komponentów, które wyglądem zgodne są ze stylem \textit{Material Design}\cite{Material Design}.
+
+Rozszerzenie instalowane w przeglądarce użytkownika również oparte jest na frameworku \textit{VueJS} z wykorzystaniem \textit{Vuetify}. Zawiera ono element popup i obsługuje bezpośrednią interakcję ze strony serwisu YouTube.
+
+Całość uruchamiana jest z użyciem wirtualizacji na poziomie systemu operacyjnego, z użyciem środowiska \textit{Docker}\cite{Docker}. Pozwala to zminimalizować liczbę kroków potrzebnych do konfiguracji środowiska na różnych maszynach oraz ujednolica je na maszynach deweloperów, co skutkuje minimalizacją błędów związanych z różnicą konfiguracji w~różnych środowiskach. Diagram wdrożenia nieuwzględniający wirtualizacji przedstawiony jest na rysunku \ref{deployment}.
