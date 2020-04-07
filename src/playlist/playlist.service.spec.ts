@@ -5,11 +5,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
+import { ConfigService } from '../config/config.service';
 
 describe('Playlist Service', () => {
   let service: PlaylistService;
   const mockUserService = {
     findById: jest.fn(),
+  };
+  const mockConfigService = {
+    createAuthOptions: jest.fn(),
   };
   const mockPlaylistRepository = {
     find: jest.fn(),
@@ -32,6 +36,10 @@ describe('Playlist Service', () => {
           provide: UserService,
           useValue: mockUserService,
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        }
       ],
     }).compile();
 
@@ -40,6 +48,64 @@ describe('Playlist Service', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('canAffect - should call findPlaylistForUser and createAuthOptions and return false', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlists: Playlist[] = [];
+
+    mockPlaylistRepository.find = jest.fn(() => Promise.resolve(playlists));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: true } 
+    });
+
+    const result = await service.canAffect(user, {id: 0});
+
+    expect(result).toBe(false);
+    expect(mockPlaylistRepository.find).toBeCalledTimes(1);
+    
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+
+  });
+
+  it('canAffect - should call findPlaylistForUser and createAuthOptions and return true', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlist = new Playlist();
+    playlist.id = 1;
+    const playlists: Playlist[] = [playlist];
+
+    mockPlaylistRepository.find = jest.fn(() => Promise.resolve(playlists));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: true } 
+    });
+
+    const result = await service.canAffect(user, {id: 1});
+
+    expect(result).toBe(true);
+    expect(mockPlaylistRepository.find).toBeCalledTimes(1);
+    
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+    
+  });
+
+  it('canAffect - should call only createAuthOptions and return true', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlists: Playlist[] = [];
+
+    mockPlaylistRepository.find = jest.fn(() => Promise.resolve(playlists));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: false } 
+    });
+
+    const result = await service.canAffect(user, {id: 0});
+
+    expect(result).toBe(true);
+    expect(mockPlaylistRepository.find).toBeCalledTimes(0);
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+    
   });
 
   it('findAll - should call find', async () => {

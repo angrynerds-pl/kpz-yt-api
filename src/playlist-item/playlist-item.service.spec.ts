@@ -4,10 +4,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PlaylistItem } from './entities/playlist-item.entity';
 import { Playlist } from '../playlist/entities/playlist.entity';
 import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '../config/config.service';
+import { User } from '../user/entities/user.entity';
 
 describe('PlaylistItemService', () => {
   let service: PlaylistItemService;
-  const mockedRepo = {
+  const mockConfigService = {
+    createAuthOptions: jest.fn(),
+  }
+  const mockPlaylistItemRepository = {
     create: jest.fn(),
     save: jest.fn(),
     find: jest.fn(),
@@ -22,8 +27,12 @@ describe('PlaylistItemService', () => {
       providers: [
         {
           provide: getRepositoryToken(PlaylistItem),
-          useValue: mockedRepo,
+          useValue: mockPlaylistItemRepository,
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        }
       ],
     }).compile();
 
@@ -34,6 +43,85 @@ describe('PlaylistItemService', () => {
     expect(service).toBeDefined();
   });
 
+  it('canAffect - should call createAuthOptions and return false', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlistItem = new PlaylistItem();
+    playlistItem.id = 4;
+    const playlistItems : PlaylistItem[] = [ playlistItem ];
+    const playlist = new Playlist();
+    playlist.id = 2;
+    playlist.playlistItems = playlistItems;
+    playlist.user = user;
+    playlistItem.playlist = playlist;
+    const playlists : Playlist[] = [ playlist ];
+    user.playlists = playlists;
+
+    const badPlaylistItem = new PlaylistItem();
+    badPlaylistItem.playlist = new Playlist();
+    badPlaylistItem.playlist.id = 3;
+
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(badPlaylistItem));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: true } 
+    });
+
+    const result = await service.canAffect(user, {id: 1});
+
+    expect(result).toBe(false);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+
+  });
+
+  it('canAffect - should call createAuthOptions and return true (equal id)', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlistItem = new PlaylistItem();
+    playlistItem.id = 4;
+    const playlistItems : PlaylistItem[] = [ playlistItem ];
+    const playlist = new Playlist();
+    playlist.id = 2;
+    playlist.playlistItems = playlistItems;
+    playlist.user = user;
+    playlistItem.playlist = playlist;
+    const playlists : Playlist[] = [ playlist ];
+    user.playlists = playlists;
+
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: true } 
+    });
+
+    const result = await service.canAffect(user, playlistItem);
+
+    expect(result).toBe(true);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(0);
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+
+  });
+
+  it('canAffect - should call createAuthOptions and return true', async () => {
+    const user = new User();
+    user.id = 1;
+    const playlistItem = new PlaylistItem();
+    playlistItem.id = 4;
+
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
+    mockConfigService.createAuthOptions = jest.fn(() => { 
+      return { enabled: false } 
+    });
+
+    const result = await service.canAffect(user, playlistItem);
+
+    expect(result).toBe(true);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(0);
+    expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
+
+  });
+  
+
+
   it('should create new playlist item and return if valid', async () => {
     const playlist = new Playlist();
     const dto = {
@@ -43,103 +131,103 @@ describe('PlaylistItemService', () => {
     };
     const playlistItem = new PlaylistItem();
     playlistItem.playlist = playlist;
-    mockedRepo.create = jest.fn(() => Promise.resolve(playlistItem));
-    mockedRepo.save = jest.fn(() => Promise.resolve(playlistItem));
+    mockPlaylistItemRepository.create = jest.fn(() => Promise.resolve(playlistItem));
+    mockPlaylistItemRepository.save = jest.fn(() => Promise.resolve(playlistItem));
 
     const result = await service.create(dto);
 
     expect(result).toBe(playlistItem);
     expect(result).toHaveProperty('playlist');
-    expect(mockedRepo.create).toBeCalledTimes(1);
-    expect(mockedRepo.create).toBeCalledWith(dto);
+    expect(mockPlaylistItemRepository.create).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.create).toBeCalledWith(dto);
   });
 
   it('should call findAll and return array', async () => {
     const playlistItems: PlaylistItem[] = [];
-    mockedRepo.find = jest.fn(() => Promise.resolve(playlistItems));
+    mockPlaylistItemRepository.find = jest.fn(() => Promise.resolve(playlistItems));
 
     const result = await service.findAll();
 
     expect(Array.isArray(result)).toBe(true);
-    expect(mockedRepo.find).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.find).toBeCalledTimes(1);
   });
 
   it('should update and return playlist item', async () => {
     const playlistItem = new PlaylistItem();
     const id = 17;
     const dto = { ytID: 'xsH7654213' };
-    mockedRepo.findOne = jest.fn(() => Promise.resolve(playlistItem));
-    mockedRepo.merge = jest.fn((param: PlaylistItem) => Promise.resolve(param));
-    mockedRepo.save = jest.fn((param: PlaylistItem) => Promise.resolve(param));
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
+    mockPlaylistItemRepository.merge = jest.fn((param: PlaylistItem) => Promise.resolve(param));
+    mockPlaylistItemRepository.save = jest.fn((param: PlaylistItem) => Promise.resolve(param));
 
     const result = await service.update(id, dto);
 
     expect(result).toBe(playlistItem);
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.merge).toBeCalledTimes(1);
-    expect(mockedRepo.merge).toBeCalledWith(playlistItem, dto);
-    expect(mockedRepo.save).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.merge).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.merge).toBeCalledWith(playlistItem, dto);
+    expect(mockPlaylistItemRepository.save).toBeCalledTimes(1);
   });
 
   it('should call update and throw exception', async () => {
     const id = 23;
     const dto = { ytID: 'xcs876Hvsg1' };
-    mockedRepo.findOne = jest
+    mockPlaylistItemRepository.findOne = jest
       .fn()
       .mockReturnValueOnce(Promise.resolve(undefined));
-    mockedRepo.save = jest.fn();
-    mockedRepo.merge = jest.fn();
+    mockPlaylistItemRepository.save = jest.fn();
+    mockPlaylistItemRepository.merge = jest.fn();
 
     await expect(service.update(id, dto)).rejects.toBeInstanceOf(
       NotFoundException,
     );
 
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.save).toBeCalledTimes(0);
-    expect(mockedRepo.merge).toBeCalledTimes(0);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.save).toBeCalledTimes(0);
+    expect(mockPlaylistItemRepository.merge).toBeCalledTimes(0);
   });
 
   it('should remove playlist item if given exists', async () => {
     const playlistItem = new PlaylistItem();
     const id = 88;
-    mockedRepo.findOne = jest.fn(() => Promise.resolve(playlistItem));
-    mockedRepo.delete = jest.fn((param: PlaylistItem) => param);
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
+    mockPlaylistItemRepository.delete = jest.fn((param: PlaylistItem) => param);
 
     const result = await service.delete(id);
 
     expect(result).toBe(playlistItem);
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.findOne).toBeCalledWith(id);
-    expect(mockedRepo.delete).toBeCalledTimes(1);
-    expect(mockedRepo.delete).toBeCalledWith(playlistItem);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledWith(id);
+    expect(mockPlaylistItemRepository.delete).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.delete).toBeCalledWith(playlistItem);
   });
 
   it('should call delete and throw exception', async () => {
     const id = 33;
-    mockedRepo.findOne = jest.fn((param: number) => Promise.resolve(null));
-    mockedRepo.delete = jest.fn();
+    mockPlaylistItemRepository.findOne = jest.fn((param: number) => Promise.resolve(null));
+    mockPlaylistItemRepository.delete = jest.fn();
 
     await expect(service.delete(id)).rejects.toBeInstanceOf(NotFoundException);
 
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.delete).toBeCalledTimes(0);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.delete).toBeCalledTimes(0);
   });
 
   it('should call findById and return if found', async () => {
     const playlistItem = new PlaylistItem();
     const id = 12;
-    mockedRepo.findOne = jest.fn(() => Promise.resolve(playlistItem));
+    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
 
     const result = await service.findById(id);
 
     expect(result).toBe(playlistItem);
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.findOne).toBeCalledWith(id);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledWith(id);
   });
 
   it('should call findById and throw exception', async () => {
     const id = 0;
-    mockedRepo.findOne = jest.fn(() => undefined);
+    mockPlaylistItemRepository.findOne = jest.fn(() => undefined);
     let result;
     try {
       result = await service.findById(id);
@@ -148,7 +236,7 @@ describe('PlaylistItemService', () => {
     }
 
     expect(result).toBe(undefined);
-    expect(mockedRepo.findOne).toBeCalledTimes(1);
-    expect(mockedRepo.findOne).toBeCalledWith(id);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
+    expect(mockPlaylistItemRepository.findOne).toBeCalledWith(id);
   });
 });

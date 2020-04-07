@@ -1,16 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePlaylistItemDto } from './dto/create-playlist-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { PlaylistItem } from './entities/playlist-item.entity';
 import { Repository, FindManyOptions } from 'typeorm';
 import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
+import { User } from 'src/user/entities/user.entity';
+import { Playlist } from 'src/playlist/entities/playlist.entity';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
-export class PlaylistItemService {
+export class PlaylistItemService implements CanAffect<PlaylistItem> {
   constructor(
     @InjectRepository(PlaylistItem)
     private readonly playlistItemRepository: Repository<PlaylistItem>,
+    private readonly configService: ConfigService,
   ) {}
+
+  async canAffect(user: User, entity: PlaylistItem | { id: number }): Promise<boolean> {
+
+    if(!this.configService.createAuthOptions().enabled)
+    {
+      return true;
+    }
+
+    let playlistItem: PlaylistItem;
+
+    if(!(entity instanceof PlaylistItem)) {
+      playlistItem = await this.findById(entity.id);
+    }
+    else {
+      playlistItem = entity;
+    }
+
+    for(const playlist of user.playlists){
+      if(parseInt(playlistItem.playlist.id as any) === parseInt(playlist.id as any))
+      return true;
+    }
+
+    return false;
+  }
 
   async create(itemDTO: CreatePlaylistItemDto): Promise<PlaylistItem> {
     const playlistItem = this.playlistItemRepository.create(itemDTO);
@@ -55,7 +84,7 @@ export class PlaylistItemService {
     if (!playlistItem) {
       throw new NotFoundException();
     }
-
+    
     return playlistItem;
   }
 
