@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '.././user/entities/user.entity';
@@ -21,7 +21,7 @@ export class AuthService {
         return user;
       }
     }
-    return undefined;
+    throw new NotFoundException();
   }
 
   async login(user: User) {
