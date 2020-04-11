@@ -6,15 +6,12 @@ import {
   IsNotEmptyObject,
   IsAscii,
 } from 'class-validator';
-import { IsAlphanumericWithSpaces } from '../../custom/validator/isAlphanumericWithSpaces'
 import { Identyficable } from '../../common/interfaces/identyficable';
 
 export class CreatePlaylistDto {
   @ApiProperty({ example: 'favorites', required: true, nullable: false })
-  @IsAlphanumericWithSpaces()
-  @IsAscii()
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly name: string;
 
   @ApiProperty({ required: true, nullable: false })
