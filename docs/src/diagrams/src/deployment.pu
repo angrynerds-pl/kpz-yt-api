@@ -28,4 +28,8 @@ static -down- browser: <<protocol>>\nTCP/IP:80
 rest -down- browser: <<protocol>>\nTCP/IP:3000
 rest -up- db
 
+cloud YouTube_API
+
+YouTube_API 0)-- kpz_yt_back: <<proxy>> 
+
 @enduml
