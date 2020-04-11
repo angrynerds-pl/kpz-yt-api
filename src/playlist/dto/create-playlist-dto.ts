@@ -4,17 +4,14 @@ import {
   IsString,
   IsDefined,
   IsNotEmptyObject,
-  IsAlphanumeric,
   IsAscii,
 } from 'class-validator';
 import { Identyficable } from '../../common/interfaces/identyficable';
 
 export class CreatePlaylistDto {
   @ApiProperty({ example: 'favorites', required: true, nullable: false })
-  @IsAlphanumeric()
-  @IsAscii()
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   readonly name: string;
 
   @ApiProperty({ required: true, nullable: false })

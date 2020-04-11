@@ -9,11 +9,13 @@ export class UpdateUserDto {
 
   @ApiProperty({ example: 'John', required: false })
   @IsOptional()
+  @IsString()
   @IsAlpha()
   readonly firstname?: string;
 
   @ApiProperty({ example: 'Smith', required: false })
   @IsOptional()
+  @IsString()
   @IsAlpha()
   readonly lastname?: string;
 }
