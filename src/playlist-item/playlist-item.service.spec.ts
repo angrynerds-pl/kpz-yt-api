@@ -6,11 +6,15 @@ import { Playlist } from '../playlist/entities/playlist.entity';
 import { NotFoundException } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { User } from '../user/entities/user.entity';
+import { PlaylistService } from '../playlist/playlist.service';
 
 describe('PlaylistItemService', () => {
   let service: PlaylistItemService;
   const mockConfigService = {
     createAuthOptions: jest.fn(),
+  }
+  const mockPlaylistService = {
+    findPlaylistsForUser: jest.fn(),
   }
   const mockPlaylistItemRepository = {
     create: jest.fn(),
@@ -32,6 +36,10 @@ describe('PlaylistItemService', () => {
         {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: PlaylistService,
+          useValue: mockPlaylistService,
         }
       ],
     }).compile();
@@ -46,22 +54,20 @@ describe('PlaylistItemService', () => {
   it('canAffect - should call createAuthOptions and return false', async () => {
     const user = new User();
     user.id = 1;
+
     const playlistItem = new PlaylistItem();
     playlistItem.id = 4;
     const playlistItems : PlaylistItem[] = [ playlistItem ];
+    
     const playlist = new Playlist();
     playlist.id = 2;
     playlist.playlistItems = playlistItems;
     playlist.user = user;
     playlistItem.playlist = playlist;
+
     const playlists : Playlist[] = [ playlist ];
     user.playlists = playlists;
 
-    const badPlaylistItem = new PlaylistItem();
-    badPlaylistItem.playlist = new Playlist();
-    badPlaylistItem.playlist.id = 3;
-
-    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(badPlaylistItem));
     mockConfigService.createAuthOptions = jest.fn(() => { 
       return { enabled: true } 
     });
@@ -69,7 +75,6 @@ describe('PlaylistItemService', () => {
     const result = await service.canAffect(user, {id: 1});
 
     expect(result).toBe(false);
-    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(1);
     expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
 
   });
@@ -77,18 +82,20 @@ describe('PlaylistItemService', () => {
   it('canAffect - should call createAuthOptions and return true (equal id)', async () => {
     const user = new User();
     user.id = 1;
+
     const playlistItem = new PlaylistItem();
     playlistItem.id = 4;
     const playlistItems : PlaylistItem[] = [ playlistItem ];
+
     const playlist = new Playlist();
     playlist.id = 2;
     playlist.playlistItems = playlistItems;
     playlist.user = user;
     playlistItem.playlist = playlist;
+
     const playlists : Playlist[] = [ playlist ];
     user.playlists = playlists;
 
-    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
     mockConfigService.createAuthOptions = jest.fn(() => { 
       return { enabled: true } 
     });
@@ -96,7 +103,6 @@ describe('PlaylistItemService', () => {
     const result = await service.canAffect(user, playlistItem);
 
     expect(result).toBe(true);
-    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(0);
     expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
 
   });
@@ -107,7 +113,6 @@ describe('PlaylistItemService', () => {
     const playlistItem = new PlaylistItem();
     playlistItem.id = 4;
 
-    mockPlaylistItemRepository.findOne = jest.fn(() => Promise.resolve(playlistItem));
     mockConfigService.createAuthOptions = jest.fn(() => { 
       return { enabled: false } 
     });
@@ -115,7 +120,6 @@ describe('PlaylistItemService', () => {
     const result = await service.canAffect(user, playlistItem);
 
     expect(result).toBe(true);
-    expect(mockPlaylistItemRepository.findOne).toBeCalledTimes(0);
     expect(mockConfigService.createAuthOptions).toBeCalledTimes(1);
 
   });

@@ -31,15 +31,15 @@ export class PlaylistService implements CanAffect<Playlist>{
       return true;
     }
 
-    let foundPlaylists = await this.findPlaylistsForUser(
-      user.id,
-    );
 
-    for (const element of foundPlaylists){
-      if(parseInt(element.id as any) === parseInt(entity.id as any)){
-        return true;
-      }
-    };
+    //this.playlistRepository.find({relations: ["user"]});
+    const playlists = await this.findPlaylistsForUser(user.id);
+
+    if(playlists.find((value: Playlist)=> {
+      return value.id == entity.id;
+    }) !== undefined) {
+      return true;
+    }
     
     return false;
   }

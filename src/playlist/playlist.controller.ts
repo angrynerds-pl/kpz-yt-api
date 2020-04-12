@@ -14,7 +14,7 @@ import {
 import { PlaylistService } from './playlist.service';
 import { CreatePlaylistDto } from './dto/create-playlist-dto';
 import { UpdatePlaylistDto } from './dto/update-playlist-dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PlaylistItemService } from '../playlist-item/playlist-item.service';
 import { CreatePlaylistItemDto } from '../playlist-item/dto/create-playlist-item.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,6 +23,7 @@ import { User } from '../user/entities/user.entity';
 
 @ApiTags('playlists')
 @Controller('playlists')
+@ApiBearerAuth()
 export class PlaylistController {
   constructor(
     private readonly playlistService: PlaylistService,
@@ -80,9 +81,14 @@ export class PlaylistController {
     return { data };
   }
 
+  @UseGuards(new JwtAuthGuard())
   @Post()
   async store(
-    @Body() createPlaylistDto: CreatePlaylistDto) {
+    @Body() createPlaylistDto: CreatePlaylistDto,
+    @AuthUser() authUser: User,) {
+    if(createPlaylistDto.user.id !== authUser.id) {
+      throw new ForbiddenException();
+    }
     const data = await this.playlistService.create(createPlaylistDto);
     return { data };
   }

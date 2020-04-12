@@ -120,7 +120,7 @@ describe('Playlist Controler', () => {
       ytID: 'asdFSc2qsx',
       playlist: playlist,
     };
-
+    
     playlistItemServiceMock.create = jest.fn(() =>
       Promise.resolve(playlistItem),
     );
@@ -207,14 +207,33 @@ describe('Playlist Controler', () => {
     user.id = 1;
     const dto = { name: 'test', user: user };
     playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
-    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
 
-    const result = await controller.store(dto);
+    const result = await controller.store(dto, user);
 
     expect(result.data).toBe(playlist);
 
     expect(playlistServiceMock.create).toBeCalledTimes(1);
     expect(playlistServiceMock.create).toBeCalledWith(dto);
+  });
+
+  it('should throw ForbiddenException before call create', async () => {
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 1;
+    const dto = { name: 'test', user: user };
+    const authUser = new User();
+    authUser.id = 2;
+    playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
+
+    let result;
+    try{
+      result = await controller.store(dto, authUser);
+    } catch (e){
+      expect(e).toBeInstanceOf(ForbiddenException);
+    }
+
+    expect(result).toBe(undefined);
+    expect(playlistServiceMock.create).toBeCalledTimes(0);
   });
 
 

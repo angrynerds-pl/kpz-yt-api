@@ -5,15 +5,17 @@ import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { PlaylistItem } from './entities/playlist-item.entity';
 import { Repository, FindManyOptions } from 'typeorm';
 import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
-import { User } from 'src/user/entities/user.entity';
-import { Playlist } from 'src/playlist/entities/playlist.entity';
+import { User } from '../user/entities/user.entity';
+import { Playlist } from '../playlist/entities/playlist.entity';
 import { ConfigService } from '../config/config.service';
+import { PlaylistService } from 'src/playlist/playlist.service';
 
 @Injectable()
 export class PlaylistItemService implements CanAffect<PlaylistItem> {
   constructor(
     @InjectRepository(PlaylistItem)
     private readonly playlistItemRepository: Repository<PlaylistItem>,
+    private readonly playlistService: PlaylistService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -24,17 +26,23 @@ export class PlaylistItemService implements CanAffect<PlaylistItem> {
       return true;
     }
 
-    let playlistItem: PlaylistItem;
+    // if(!(entity instanceof PlaylistItem)) {
+    //   playlistItem = await this.findById(entity.id);
+    // }
+    // else {
+    //   playlistItem = entity;
+    // }
 
-    if(!(entity instanceof PlaylistItem)) {
-      playlistItem = await this.findById(entity.id);
-    }
-    else {
-      playlistItem = entity;
-    }
+    const playlists = await this.playlistService.findPlaylistsForUser(entity.id);
 
-    for(const playlist of user.playlists){
-      if(parseInt(playlistItem.playlist.id as any) === parseInt(playlist.id as any))
+
+    if(playlists.find(async (value: Playlist)=> {
+      
+      return (await this.findForPlaylist(value.id)).find((value: PlaylistItem)=> {
+        return value.id === entity.id;
+      }) !== undefined;
+      
+    }) !== undefined) {
       return true;
     }
 

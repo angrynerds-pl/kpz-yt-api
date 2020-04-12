@@ -1,15 +1,18 @@
-import { Controller, Body, Get, Put, Delete, Param, ForbiddenException } from '@nestjs/common';
+import { Controller, Body, Get, Put, Delete, Param, ForbiddenException, UseGuards } from '@nestjs/common';
 import { PlaylistItemService } from './playlist-item.service';
 import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '../user/entities/user.entity';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('playlist-items')
 @ApiTags('playlist-item')
+@ApiBearerAuth()
 export class PlaylistItemController {
   constructor(private readonly playlistItemService: PlaylistItemService) {}
 
+  @UseGuards(new JwtAuthGuard())
   @Get()
   async find(@AuthUser() authUser: User) {
     if(!(await this.playlistItemService.canAffect(authUser, { id: 0 } ))) {
@@ -18,6 +21,7 @@ export class PlaylistItemController {
     return { data: await this.playlistItemService.findAll() };
   }
 
+  @UseGuards(new JwtAuthGuard())
   @Get(':id')
   async findOne(@Param('id') id: number, @AuthUser() authUser: User) {
     if(!(await this.playlistItemService.canAffect(authUser, { id: id} ))) {
@@ -26,6 +30,7 @@ export class PlaylistItemController {
     return { data: await this.playlistItemService.findById(id) };
   }
 
+  @UseGuards(new JwtAuthGuard())
   @Put(':id')
   async update(
     @Param('id') id: number,
@@ -40,6 +45,7 @@ export class PlaylistItemController {
     };
   }
 
+  @UseGuards(new JwtAuthGuard())
   @Delete(':id')
   async delete(@Param('id') id: number, @AuthUser() authUser: User) {
     if(!(await this.playlistItemService.canAffect(authUser, { id: id} ))) {
