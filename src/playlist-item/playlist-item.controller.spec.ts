@@ -4,9 +4,14 @@ import { PlaylistItemService } from './playlist-item.service';
 import { PlaylistItem } from './entities/playlist-item.entity';
 import { User } from '../user/entities/user.entity';
 import { ForbiddenException } from '@nestjs/common/exceptions/forbidden.exception';
+import { PlaylistService } from '../playlist/playlist.service';
+import { Playlist } from '../playlist/entities/playlist.entity';
 
 describe('PlaylistItem Controller', () => {
   let controller: PlaylistItemController;
+  const playlistServiceMock = {
+    canAffect: jest.fn(),
+  }
   const playlistItemServiceMock = {
     findAll: jest.fn(),
     findById: jest.fn(),
@@ -23,13 +28,17 @@ describe('PlaylistItem Controller', () => {
           provide: PlaylistItemService,
           useValue: playlistItemServiceMock,
         },
+        {
+          provide: PlaylistService,
+          useValue: playlistServiceMock,
+        }
       ],
     }).compile();
 
     controller = module.get<PlaylistItemController>(PlaylistItemController);
   });
 
-  it('update playlist item', async () => {
+  it('update playlist item (without checking playlist.canAffect)', async () => {
     const authUser = new User();
     const expected = new PlaylistItem();
     playlistItemServiceMock.update = jest.fn(() => Promise.resolve(expected));
@@ -37,14 +46,33 @@ describe('PlaylistItem Controller', () => {
     const playlistItemId = 1;
 
     playlistItemServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
+    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
 
     const result = await controller.update(playlistItemId, dto, authUser);
 
     expect(playlistItemServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(0);
     expect(result.data).toBe(expected);
   });
 
-  it('throw ForbiddenException before update playlist item', async () => {
+  it('update playlist item (with checking playlist.canAffect)', async () => {
+    const authUser = new User();
+    const expected = new PlaylistItem();
+    playlistItemServiceMock.update = jest.fn(() => Promise.resolve(expected));
+    const dto = { playlist: new Playlist() };
+    const playlistItemId = 1;
+
+    playlistItemServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
+    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
+
+    const result = await controller.update(playlistItemId, dto, authUser);
+
+    expect(playlistItemServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(1);
+    expect(result.data).toBe(expected);
+  });
+
+  it('throw ForbiddenException before update playlist item (access denied to PlaylistItem)', async () => {
     const authUser = new User();
     const expected = new PlaylistItem();
     playlistItemServiceMock.update = jest.fn(() => Promise.resolve(expected));
@@ -52,6 +80,7 @@ describe('PlaylistItem Controller', () => {
     const playlistItemId = 1;
 
     playlistItemServiceMock.canAffect = jest.fn(() => Promise.resolve(false));
+    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
 
     let result;
     try{
@@ -62,6 +91,30 @@ describe('PlaylistItem Controller', () => {
 
     expect(result).toBeUndefined();
     expect(playlistItemServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(0);
+
+  });
+
+  it('throw ForbiddenException before update playlist item (access denied to Playlist)', async () => {
+    const authUser = new User();
+    const expected = new PlaylistItem();
+    playlistItemServiceMock.update = jest.fn(() => Promise.resolve(expected));
+    const dto = {playlist: new Playlist()};
+    const playlistItemId = 1;
+
+    playlistItemServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
+    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(false));
+
+    let result;
+    try{
+      result = await controller.update(playlistItemId, dto, authUser);
+    } catch (e){
+      expect(e).toBeInstanceOf(ForbiddenException);
+    }
+
+    expect(result).toBeUndefined();
+    expect(playlistItemServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(1);
 
   });
 

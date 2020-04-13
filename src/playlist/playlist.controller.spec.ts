@@ -201,12 +201,16 @@ describe('Playlist Controler', () => {
     expect(playlistItemServiceMock.findForPlaylist).toBeCalledTimes(0);
   });
 
-  it('should call create', async () => {
+  it('should call create (with checking user.id)', async () => {
     const playlist = new Playlist();
     const user = new User();
     user.id = 1;
     const dto = { name: 'test', user: user };
     playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(false);
+      else return Promise.resolve(true);
+    });
 
     const result = await controller.store(dto, user);
 
@@ -214,6 +218,30 @@ describe('Playlist Controler', () => {
 
     expect(playlistServiceMock.create).toBeCalledTimes(1);
     expect(playlistServiceMock.create).toBeCalledWith(dto);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(0);
+  });
+
+  it('should call create (without checking user.id)', async () => {
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 1;
+    const dto = { name: 'test', user: user };
+    const authUser = new User();
+    authUser.id = 2;
+
+    playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(true);
+      else return Promise.resolve(true);
+    });
+
+    const result = await controller.store(dto, authUser);
+
+    expect(result.data).toBe(playlist);
+
+    expect(playlistServiceMock.create).toBeCalledTimes(1);
+    expect(playlistServiceMock.create).toBeCalledWith(dto);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(1);
   });
 
   it('should throw ForbiddenException before call create', async () => {
@@ -224,6 +252,10 @@ describe('Playlist Controler', () => {
     const authUser = new User();
     authUser.id = 2;
     playlistServiceMock.create = jest.fn(() => Promise.resolve(playlist));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(false);
+      else return Promise.resolve(true);
+    });
 
     let result;
     try{
@@ -237,7 +269,7 @@ describe('Playlist Controler', () => {
   });
 
 
-  it('should call update', async () => {
+  it('should call update (with checking user.id)', async () => {
     const authUser = new User();
     const playlist = new Playlist();
     const user = new User();
@@ -245,25 +277,77 @@ describe('Playlist Controler', () => {
     const dto = { name: 'test', user: user };
     const id = 1;
     playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
-    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(true));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => Promise.resolve(true));
 
     const result = await controller.update(id, dto, authUser);
 
     expect(result.data).toBe(playlist);
-    expect(playlistServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(2);
     expect(playlistServiceMock.update).toBeCalledTimes(1);
     expect(playlistServiceMock.update).toBeCalledWith(id, dto);
   });
 
-  it('should throw ForbiddenException before call update', async () => {
+  it('should call update (without checking user.id)', async () => {
     const authUser = new User();
+    authUser.id = 2;
     const playlist = new Playlist();
     const user = new User();
     user.id = 1;
     const dto = { name: 'test', user: user };
     const id = 1;
     playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
-    playlistServiceMock.canAffect = jest.fn(() => Promise.resolve(false));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(true);
+      else return Promise.resolve(true);
+    });
+
+    const result = await controller.update(id, dto, authUser);
+
+    expect(result.data).toBe(playlist);
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(2);
+    expect(playlistServiceMock.update).toBeCalledTimes(1);
+    expect(playlistServiceMock.update).toBeCalledWith(id, dto);
+  });
+
+  it('should throw ForbiddenException before call update (access denied on Playlist)', async () => {
+    const authUser = new User();
+    authUser.id = 1;
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 1;
+    const dto = { name: 'test', user: user };
+    const id = 1;
+    playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(false);
+      else return Promise.resolve(false);
+    });
+
+    let result;
+    try{
+      result = await controller.update(id, dto, authUser);
+    } catch (e){
+      expect(e).toBeInstanceOf(ForbiddenException);
+    }
+
+    expect(result).toBeUndefined();
+    expect(playlistServiceMock.canAffect).toBeCalledTimes(1);
+    expect(playlistServiceMock.update).toBeCalledTimes(0);
+  });
+
+  it('should throw ForbiddenException before call update (user.id mismatch)', async () => {
+    const authUser = new User();
+    authUser.id = 2;
+    const playlist = new Playlist();
+    const user = new User();
+    user.id = 1;
+    const dto = { name: 'test', user: user };
+    const id = 1;
+    playlistServiceMock.update = jest.fn(() => Promise.resolve(playlist));
+    playlistServiceMock.canAffect = jest.fn((val, obj:{id:number}) => {
+      if(obj.id === -1) return Promise.resolve(false);
+      else return Promise.resolve(true);
+    });
 
     let result;
     try{

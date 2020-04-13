@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { User } from '../user/entities/user.entity';
 
+
 @ApiTags('playlists')
 @Controller('playlists')
 @ApiBearerAuth()
@@ -86,7 +87,7 @@ export class PlaylistController {
   async store(
     @Body() createPlaylistDto: CreatePlaylistDto,
     @AuthUser() authUser: User,) {
-    if(createPlaylistDto.user.id !== authUser.id) {
+    if(createPlaylistDto.user.id !== authUser.id && !(await this.playlistService.canAffect(authUser, { id: -1}))) {
       throw new ForbiddenException();
     }
     const data = await this.playlistService.create(createPlaylistDto);
@@ -100,6 +101,13 @@ export class PlaylistController {
     @Body() updatePlaylistDto: UpdatePlaylistDto, 
     @AuthUser() authUser: User,
     ) {
+
+      if(updatePlaylistDto.user !== undefined){
+        if(updatePlaylistDto.user.id !== authUser.id && !(await this.playlistService.canAffect(authUser, { id: -1}))) {
+          throw new ForbiddenException();
+        }
+      }
+
       if(!(await this.playlistService.canAffect(authUser, { id: id} ))) {
         throw new ForbiddenException();
       }

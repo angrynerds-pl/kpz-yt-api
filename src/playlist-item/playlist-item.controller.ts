@@ -5,12 +5,14 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { User } from '../user/entities/user.entity';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PlaylistService } from '../playlist/playlist.service';
 
 @Controller('playlist-items')
 @ApiTags('playlist-item')
 @ApiBearerAuth()
 export class PlaylistItemController {
-  constructor(private readonly playlistItemService: PlaylistItemService) {}
+  constructor(private readonly playlistItemService: PlaylistItemService,
+              private readonly playlistService: PlaylistService) {}
 
   @UseGuards(new JwtAuthGuard())
   @Get()
@@ -37,9 +39,22 @@ export class PlaylistItemController {
     @Body() updatePlaylistItemDTO: UpdatePlaylistItemDto, 
     @AuthUser() authUser: User,
     ) {
-      if(!(await this.playlistItemService.canAffect(authUser, { id: id} ))) {
+      
+
+      if(!(await this.playlistItemService.canAffect(authUser, { id: id })) ){
         throw new ForbiddenException();
       }
+
+      if(updatePlaylistItemDTO.playlist !== undefined){
+        if(! (await this.playlistService.canAffect(
+            authUser, 
+            { id: updatePlaylistItemDTO.playlist.id }))) {
+              throw new ForbiddenException();
+            }
+      }
+
+
+
     return {
       data: await this.playlistItemService.update(id, updatePlaylistItemDTO),
     };

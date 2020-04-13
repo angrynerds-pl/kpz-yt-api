@@ -8,7 +8,7 @@ import { UpdatePlaylistItemDto } from './dto/update-playlist-item.dto';
 import { User } from '../user/entities/user.entity';
 import { Playlist } from '../playlist/entities/playlist.entity';
 import { ConfigService } from '../config/config.service';
-import { PlaylistService } from 'src/playlist/playlist.service';
+import { PlaylistService } from '../playlist/playlist.service';
 
 @Injectable()
 export class PlaylistItemService implements CanAffect<PlaylistItem> {
@@ -26,27 +26,16 @@ export class PlaylistItemService implements CanAffect<PlaylistItem> {
       return true;
     }
 
-    // if(!(entity instanceof PlaylistItem)) {
-    //   playlistItem = await this.findById(entity.id);
-    // }
-    // else {
-    //   playlistItem = entity;
-    // }
+    const playlists = await this.playlistService.findPlaylistsForUser(user.id);
 
-    const playlists = await this.playlistService.findPlaylistsForUser(entity.id);
-
-
-    if(playlists.find(async (value: Playlist)=> {
-      
-      return (await this.findForPlaylist(value.id)).find((value: PlaylistItem)=> {
-        return value.id === entity.id;
+    return (await Promise.all(playlists
+      .map( (value: Playlist) => this.findForPlaylist(value.id) )))
+      .find((value: PlaylistItem[]) => {
+        return value.find((value: PlaylistItem) => {
+          return value.id == entity.id;
       }) !== undefined;
+    }) !== undefined;
       
-    }) !== undefined) {
-      return true;
-    }
-
-    return false;
   }
 
   async create(itemDTO: CreatePlaylistItemDto): Promise<PlaylistItem> {
