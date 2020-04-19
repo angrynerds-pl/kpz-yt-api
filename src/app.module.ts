@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { PlaylistItemModule } from './playlist-item/playlist-item.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { AuthModule } from './auth/auth.module';
+import { ProxyModule } from './proxy/proxy.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
     PlaylistModule,
     UserModule,
     PlaylistItemModule,
+    ProxyModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
