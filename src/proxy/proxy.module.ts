@@ -7,9 +7,9 @@ import { ConfigModule } from '../config/config.module';
   imports: [
     ConfigModule,
     HttpModule.register({
-    timeout: 5000,
-  }),
-],
+      timeout: 5000,
+    }),
+  ],
   controllers: [ProxyController],
   providers: [ProxyService],
   exports: [ProxyService],
