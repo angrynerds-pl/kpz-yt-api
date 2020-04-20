@@ -4,7 +4,7 @@ import { ProxyService } from './proxy.service';
 
 describe('Proxy Controller', () => {
   let controller: ProxyController;
-  let proxyServiceMock: ProxyService;
+  let proxyServiceMock = {};
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
