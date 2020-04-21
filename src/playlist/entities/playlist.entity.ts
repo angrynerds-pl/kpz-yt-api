@@ -7,10 +7,10 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { PlaylistItem } from '../../playlist-item/entities/playlist-item.entity';
-import { Identyficable } from '../../common/interfaces/identyficable';
+import { Identifiable } from '../../common/interfaces/identifiable';
 
 @Entity()
-export class Playlist implements Identyficable {
+export class Playlist implements Identifiable {
   @PrimaryGeneratedColumn()
   public id: number;
   @Column()

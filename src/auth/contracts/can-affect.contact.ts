@@ -1,6 +1,6 @@
 import { User } from '../../user/entities/user.entity';
-import { Identyficable } from 'src/common/interfaces/identyficable';
+import { Identifiable as Identifiable } from 'src/common/interfaces/identifiable';
 
 export interface CanAffect<Entity> {
-  canAffect(user: User, entity: Entity | Identyficable): boolean;
+  canAffect(user: User, entity: Entity | Identifiable): boolean;
 }
