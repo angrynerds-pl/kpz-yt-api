@@ -1,7 +1,7 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 
 @ApiExtraModels()
-export class Identyficable {
+export class Identifiable {
   @ApiProperty({ type: Number, example: 1 })
   id: number;
 }

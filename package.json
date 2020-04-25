@@ -21,7 +21,7 @@
     "docker:prod:up": "docker-compose -f ./docker/production/docker-compose.yml --project-directory ./ up",
     "docker:prod:down": "docker-compose -f ./docker/production/docker-compose.yml --project-directory ./ down",
     "docker:dev:up": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ up",
-    "docker:dev:down": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ down",
+    "docker:dev:down": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ down", 
     "docker:dev:attach": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ exec app /bin/sh",
     "nest-dep-graph": "node node_modules/nestjs-dependency-graph/dist/index.js dist/app/app.module.js"
   },
@@ -34,6 +34,7 @@
     "@nestjs/platform-express": "^6.10.14",
     "@nestjs/swagger": "^4.3.2",
     "@nestjs/typeorm": "^6.3.3",
+    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",

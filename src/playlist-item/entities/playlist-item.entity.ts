@@ -1,9 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Playlist } from '../../playlist/entities/playlist.entity';
-import { Identyficable } from '../../common/interfaces/identyficable';
+import { Identifiable } from '../../common/interfaces/identifiable';
 
 @Entity()
-export class PlaylistItem implements Identyficable {
+export class PlaylistItem implements Identifiable {
   @PrimaryGeneratedColumn()
   public id: number;
 

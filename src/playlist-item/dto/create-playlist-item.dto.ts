@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsNotEmptyObject } from 'class-validator';
-import { Identyficable } from '../../common/interfaces/identyficable';
+import { Identifiable } from '../../common/interfaces/identifiable';
 
 export class CreatePlaylistItemDto {
   @ApiProperty({ example: '9zfXD8wjzfc', required: true })
@@ -10,5 +10,5 @@ export class CreatePlaylistItemDto {
 
   @ApiProperty({ required: true })
   @IsNotEmptyObject()
-  readonly playlist: Identyficable;
+  readonly playlist: Identifiable;
 }
