@@ -1,5 +1,5 @@
 import { User } from '../../user/entities/user.entity';
 
 export interface CanAffect<Entity> {
-  canAffect(user: User, entity: Entity | { id: number }): boolean;
+  canAffect(user: User, entity: Entity | { id: number }): Promise<boolean>;
 }

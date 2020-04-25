@@ -6,20 +6,43 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
+import { User } from '../user/entities/user.entity'
 import { Repository } from 'typeorm';
-// import { PlaylistItem } from '../playlist-item/entities/playlist-item.entity';
+import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { CreatePlaylistDto } from './dto/create-playlist-dto';
 import { UpdatePlaylistDto } from './dto/update-playlist-dto';
 import { UserService } from '../user/user.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
-export class PlaylistService {
+export class PlaylistService implements CanAffect<Playlist>{
   constructor(
     @InjectRepository(Playlist)
     private readonly playlistRepository: Repository<Playlist>, // PlaylistItemService
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly configService: ConfigService,
   ) {}
+
+  async canAffect(user: User, entity: Playlist | { id: number }): Promise<boolean> {  
+    
+    if(!this.configService.createAuthOptions().enabled)
+    {
+      return true;
+    }
+
+
+    //this.playlistRepository.find({relations: ["user"]});
+    const playlists = await this.findPlaylistsForUser(user.id);
+
+    if(playlists.find((value: Playlist)=> {
+      return value.id == entity.id;
+    }) !== undefined) {
+      return true;
+    }
+    
+    return false;
+  }
 
   async findAll(): Promise<Playlist[]> {
     return this.playlistRepository.find();

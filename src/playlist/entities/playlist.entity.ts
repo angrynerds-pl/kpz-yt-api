@@ -28,7 +28,7 @@ export class Playlist implements Identyficable {
   @OneToMany(
     type => PlaylistItem,
     playlistItem => playlistItem.playlist,
-    { onDelete: 'CASCADE', nullable: false },
+    { onDelete: 'CASCADE', nullable: false, eager: true },
   )
   public playlistItems: PlaylistItem[];
 }
