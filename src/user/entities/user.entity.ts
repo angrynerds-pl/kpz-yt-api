@@ -24,7 +24,7 @@ export class User implements Identifiable {
   @OneToMany(
     () => Playlist,
     playlist => playlist.user,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE'},
   )
   public playlists: Playlist[];
 }

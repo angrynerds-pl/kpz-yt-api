@@ -22,7 +22,7 @@ export class UserService implements CanAffect<User> {
     private readonly configService: ConfigService,
   ) {}
 
-  canAffect(user: User, entity: User | { id: number }): boolean {
+  async canAffect(user: User, entity: User | { id: number }): Promise<boolean> {
     console.log(user, entity);
 
     return (
