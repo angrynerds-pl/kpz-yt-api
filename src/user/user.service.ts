@@ -23,8 +23,6 @@ export class UserService implements CanAffect<User> {
   ) {}
 
   canAffect(user: User, entity: User | { id: number }): boolean {
-    console.log(user, entity);
-
     return (
       parseInt(user.id as any) === parseInt(entity.id as any) ||
       !this.configService.createAuthOptions().enabled
