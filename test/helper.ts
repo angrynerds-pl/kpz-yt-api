@@ -1,24 +1,26 @@
-import { User } from '../src/user/entities/user.entity';
 import * as request from 'supertest';
+import { CreateUserDto } from '../src/user/dto/create-user.dto';
 
 export class UserHelper {
-  static testUser: Partial<User> = {
+  static testUserDto: CreateUserDto = {
     username: 'testuser',
     password: 'testpass',
     firstname: 'John',
     lastname: 'Tester',
   };
 
-  static async createTestUser(server) {
+  static async createTestUser(server, dto) {
     const res = await request(server)
       .post('/users')
-      .send(UserHelper.testUser);
+      .send(dto);
 
     return res.body.data;
   }
 
-  static async deleteTestUser(server, userId: Number) {
-    const res = await request(server).delete('/users/' + userId);
+  static async deleteTestUser(server, authToken, userId: Number) {
+    const res = await request(server)
+      .delete('/users/' + userId)
+      .set('Authorization', 'Bearer ' + authToken);
 
     return res.body.data;
   }
