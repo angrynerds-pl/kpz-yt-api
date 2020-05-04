@@ -45,4 +45,8 @@ export class ConfigService
       logging: 'all',
     };
   }
+
+  getApiKey(): string {
+    return process.env['YT_API_KEY'] || '';
+  }
 }

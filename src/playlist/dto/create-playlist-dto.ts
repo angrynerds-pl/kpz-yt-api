@@ -6,7 +6,7 @@ import {
   IsNotEmptyObject,
   IsAscii,
 } from 'class-validator';
-import { Identyficable } from '../../common/interfaces/identyficable';
+import { Identifiable } from '../../common/interfaces/identifiable';
 
 export class CreatePlaylistDto {
   @ApiProperty({ example: 'favorites', required: true, nullable: false })
@@ -17,5 +17,5 @@ export class CreatePlaylistDto {
   @ApiProperty({ required: true, nullable: false })
   @IsDefined()
   @IsNotEmptyObject()
-  readonly user: Identyficable;
+  readonly user: Identifiable;
 }

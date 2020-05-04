@@ -1,9 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Playlist } from '../../playlist/entities/playlist.entity';
-import { Identyficable } from '../../common/interfaces/identyficable';
+import { Identifiable } from '../../common/interfaces/identifiable';
 
 @Entity()
-export class User implements Identyficable {
+export class User implements Identifiable {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -24,7 +24,7 @@ export class User implements Identyficable {
   @OneToMany(
     () => Playlist,
     playlist => playlist.user,
-    { onDelete: 'CASCADE' },
+    { onDelete: 'CASCADE'},
   )
   public playlists: Playlist[];
 }

@@ -22,8 +22,8 @@ export class UserService implements CanAffect<User> {
     private readonly configService: ConfigService,
   ) {}
 
-  canAffect(user: User, entity: User | { id: number }): boolean {
-    return (
+  async canAffect(user: User, entity: User | { id: number }): Promise<boolean> {
+    return Promise.resolve(
       parseInt(user.id as any) === parseInt(entity.id as any) ||
       !this.configService.createAuthOptions().enabled
     );

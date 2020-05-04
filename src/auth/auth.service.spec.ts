@@ -5,6 +5,7 @@ import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 
 import * as bcryptjs from 'bcryptjs';
+import { NotFoundException } from '@nestjs/common';
 jest.mock('bcryptjs');
 
 describe('AuthService', () => {
@@ -58,10 +59,12 @@ describe('AuthService', () => {
     userServiceMock.findForAuth = jest.fn(() => Promise.resolve(undefined));
     (bcryptjs.compare as jest.Mock).mockReturnValue(true);
 
-    const result: User | undefined = await service.validateUser(dto);
-
-    expect(userServiceMock.findForAuth).toBeCalledWith('test');
-    expect(result).toBeUndefined();
+    try {
+      await service.validateUser(dto);
+    } catch (e) {
+      expect(userServiceMock.findForAuth).toBeCalledWith('test');
+      expect(e).toBeInstanceOf(NotFoundException);
+    }
   });
 
   it('should return undefined when found but not valid', async () => {
@@ -72,11 +75,13 @@ describe('AuthService', () => {
     userServiceMock.findForAuth = jest.fn(() => Promise.resolve(user));
     (bcryptjs.compare as jest.Mock).mockReturnValue(false);
 
-    const result: User = await service.validateUser(dto);
-
-    expect(userServiceMock.findForAuth).toBeCalledWith('test');
-    expect(bcryptjs.compare).toBeCalledWith('test', 'passw');
-    expect(result).toBeUndefined();
+    try {
+      await service.validateUser(dto);
+    } catch (e) {
+      expect(userServiceMock.findForAuth).toBeCalledWith('test');
+      expect(bcryptjs.compare).toBeCalledWith('test', 'passw');
+      expect(e).toBeInstanceOf(NotFoundException);
+    }
   });
 
   it('should call sign method', async () => {

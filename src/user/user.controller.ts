@@ -32,7 +32,7 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @Get()
   async find(@AuthUser() authUser: User) {
-    if (!this.usersService.canAffect(authUser, { id: 0 })) {
+    if (!await this.usersService.canAffect(authUser, { id: 0 })) {
       throw new ForbiddenException();
     }
     return { data: await this.usersService.findAll() };
@@ -41,7 +41,7 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @Get(':id')
   async findOne(@Param('id') id: number, @AuthUser() authUser: User) {
-    if (!this.usersService.canAffect(authUser, { id: id })) {
+    if (!await this.usersService.canAffect(authUser, { id: id })) {
       throw new ForbiddenException();
     }
     return { data: await this.usersService.findById(id) };
@@ -59,7 +59,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @AuthUser() authUser: User,
   ) {
-    if (!this.usersService.canAffect(authUser, { id: userId })) {
+    if (!await this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const updatedUser = await this.usersService.update(userId, updateUserDto);
@@ -69,7 +69,7 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @Delete(':id')
   async delete(@Param('id') userId: number, @AuthUser() authUser: User) {
-    if (!this.usersService.canAffect(authUser, { id: userId })) {
+    if (!await this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const deletedUser = await this.usersService.delete(userId);
@@ -79,7 +79,7 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @Get(':id/playlists')
   async findPlaylists(@Param('id') userId: number, @AuthUser() authUser: User) {
-    if (!this.usersService.canAffect(authUser, { id: userId })) {
+    if (!await this.usersService.canAffect(authUser, { id: userId })) {
       throw new ForbiddenException();
     }
     const foundPlaylists = await this.playlistService.findPlaylistsForUser(

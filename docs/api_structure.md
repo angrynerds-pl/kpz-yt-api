@@ -37,3 +37,9 @@
 | Create playlist items | `POST /playlist-items`        |
 | Update playlist item  | `PUT /playlist-items/{id}`    |
 | Delete playlist item  | `DELETE /playlist-items/{id}` |
+
+## Proxy
+
+| Purpose                   | Request                       |
+| :--------------------     | :---------------------------- |
+| Call googleapis/youtube   | `GET /youtubeapi/videos/{id}` |
