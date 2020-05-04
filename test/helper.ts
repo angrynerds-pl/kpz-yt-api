@@ -1,5 +1,6 @@
 import * as request from 'supertest';
 import { CreateUserDto } from '../src/user/dto/create-user.dto';
+import { create } from 'domain';
 
 export class UserHelper {
   static testUserDto: CreateUserDto = {
@@ -13,7 +14,7 @@ export class UserHelper {
     const res = await request(server)
       .post('/users')
       .send(dto);
-      
+
     return res.body.data;
   }
 
@@ -28,11 +29,58 @@ export class UserHelper {
 
 export class SessionHelper {
   static async createSession(server, username, password) {
-    let dto = { username: username, password: password };
-    let resp = await request(server)
+    const dto = { username: username, password: password };
+    const resp = await request(server)
       .post('/sessions')
       .send(dto);
-    let bearerToken = resp.body.access_token;
+    const bearerToken = resp.body.access_token;
     return bearerToken;
+  }
+}
+
+export class PlaylistHelper {
+  static async createPlaylist(server, authToken, createPlaylistDto) {
+    const res = await request(server)
+      .post('/playlists')
+      .set('Authorization', 'Bearer ' + authToken)
+      .send(createPlaylistDto);
+
+    const createdPlaylist = res.body.data;
+    return createdPlaylist;
+  }
+
+  static async deletePlaylist(server, authToken, playlistId) {
+    const res = await request(server)
+      .delete('/playlists/' + playlistId)
+      .set('Authorization', 'Bearer ' + authToken);
+
+    const deletedPlaylist = res.body.data;
+    return deletedPlaylist;
+  }
+}
+
+export class PlaylistItemHelper {
+  static async createPlaylistItem(
+    server,
+    authToken,
+    playlistId,
+    createPlaylistItemDto,
+  ) {
+    const res = await request(server)
+      .post('/playlists/' + playlistId + '/playlist-items')
+      .set('Authorization', 'Bearer ' + authToken)
+      .send(createPlaylistItemDto);
+
+    const createdPlaylistItem = res.body.data;
+    return createdPlaylistItem;
+  }
+
+  static async deletePlaylistItem(server, authToken, playlistItemId) {
+    const res = await request(server)
+      .delete('/playlist-items/' + playlistItemId)
+      .set('Authorization', 'Bearer ' + authToken);
+
+    const deletedPlaylistItem = res.body.data;
+    return deletedPlaylistItem;
   }
 }
