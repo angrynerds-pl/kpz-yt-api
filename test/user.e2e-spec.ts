@@ -78,8 +78,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users (GET) - get all users', async () => {
-    console.log('\n\n\n' + authToken + '\n\n\n');
-
     const res = await request(app.getHttpServer())
       .get('/users')
       .set('Authorization', 'Bearer ' + authToken)

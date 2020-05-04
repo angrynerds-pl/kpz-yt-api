@@ -9,15 +9,15 @@ export class UserHelper {
     lastname: 'Tester',
   };
 
-  static async createTestUser(server, dto) {
+  static async createUser(server, dto: CreateUserDto) {
     const res = await request(server)
       .post('/users')
       .send(dto);
-
+      
     return res.body.data;
   }
 
-  static async deleteTestUser(server, authToken, userId: Number) {
+  static async deleteUser(server, authToken, userId: Number) {
     const res = await request(server)
       .delete('/users/' + userId)
       .set('Authorization', 'Bearer ' + authToken);
