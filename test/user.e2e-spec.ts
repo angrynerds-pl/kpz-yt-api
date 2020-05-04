@@ -77,19 +77,9 @@ describe('AppController (e2e)', () => {
       .expect(409);
   });
 
-  it('/users/:id (GET) - get user, invalid id', async () => {
-    let invalidUserId = '100000';
-
-    await request(app.getHttpServer())
-      .get('/users')
-      .send(invalidUserId)
-      .set('Authorization', 'Bearer ' + authToken)
-      .expect(403);
-  });
-
   it('/users (GET) - get all users', async () => {
     console.log('\n\n\n' + authToken + '\n\n\n');
-    
+
     const res = await request(app.getHttpServer())
       .get('/users')
       .set('Authorization', 'Bearer ' + authToken)
@@ -98,7 +88,7 @@ describe('AppController (e2e)', () => {
 
   it('/users/:id (GET) - get created user by id', async () => {
     const res = await request(app.getHttpServer())
-      .get('/users/'+createdUserId)
+      .get('/users/' + createdUserId)
       .set('Authorization', 'Bearer ' + authToken)
       .expect(200);
 
@@ -109,7 +99,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/:id (PUT) - update created user', async () => {
-    let dto = { firstname: 'Krzysztof', lastname: 'Krawczyk'};
+    let dto = { firstname: 'Krzysztof', lastname: 'Krawczyk' };
 
     const res = await request(app.getHttpServer())
       .put('/users/' + createdUserId)
@@ -130,11 +120,18 @@ describe('AppController (e2e)', () => {
       .expect(200);
   });
 
-
   it('/users/:id (DELETE) - delete user, invalid id', async () => {
     await request(app.getHttpServer())
       .delete('/users/' + createdUserId)
       .set('Authorization', 'Bearer ' + authToken)
       .expect(404);
+  });
+
+  it('/users/:id (GET) - get user, invalid id', async () => {
+    await request(app.getHttpServer())
+      .get('/users')
+      // .send(createdUserId)
+      .set('Authorization', 'Bearer ' + authToken)
+      .expect(403);
   });
 });
