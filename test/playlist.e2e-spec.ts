@@ -2,17 +2,21 @@ import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, Session, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { AppService } from '../src/app.service';
 import { UserHelper, SessionHelper } from './helper';
 import { Playlist } from '../src/playlist/entities/playlist.entity';
 import { User } from '../src/user/entities/user.entity';
+import { CreateUserDto } from '../src/user/dto/create-user.dto';
 
 describe('Playlist', () => {
   let app: INestApplication;
 
-  let authToken;
-  let createdUser: Partial<User>;
-  let createdPlaylist: Partial<Playlist>;
+  let createdUserA: Partial<User>;
+  let authTokenUserA;
+  let createdPlaylistForUserA: Partial<Playlist>;
+
+  let createdUserB: Partial<User>;
+  let authTokenUserB;
+  let createdPlaylistForUserB: Partial<Playlist>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -25,133 +29,259 @@ describe('Playlist', () => {
 
     const server = await app.getHttpServer();
 
-    // Create test user and session
-    createdUser = await UserHelper.createTestUser(
-      server,
-      UserHelper.testUserDto,
-    );
-    authToken = await SessionHelper.createSession(
+    // Create test users and sessions
+    createdUserA = await UserHelper.createUser(server, UserHelper.testUserDto);
+    authTokenUserA = await SessionHelper.createSession(
       server,
       UserHelper.testUserDto.username,
       UserHelper.testUserDto.password,
     );
 
-    // Create playlist for testing
+    let dtoUserB: CreateUserDto = {
+      username: 'secondaryUser',
+      password: 'password',
+      firstname: 'Krzysztof',
+      lastname: 'Krawczyk',
+    };
+    createdUserB = await UserHelper.createUser(server, dtoUserB);
+    authTokenUserB = await SessionHelper.createSession(
+      server,
+      dtoUserB.username,
+      dtoUserB.password,
+    );
+
+    // Create playlist for user B
+    const playlistDtoUserB = {
+      name: 'playlistForUserB',
+      user: {
+        id: createdUserB.id,
+      },
+    };
+
+    createdPlaylistForUserB = (
+      await request(server)
+        .post('/playlists')
+        .set('Authorization', 'Bearer ' + authTokenUserB)
+        .send(playlistDtoUserB)
+    ).body.data;
   });
 
-  it(`/playlists (POST)`, async () => {
+  // Playlist POST
+
+  it(`/playlists (POST) - create, invalid token`, async () => {
     const playlistDto = {
       name: 'playlistName',
       user: {
-        id: createdUser.id,
+        id: createdUserA.id,
       },
     };
 
     const res = await request(app.getHttpServer())
       .post('/playlists')
-      .set('Authorization', 'Bearer ' + authToken)
-      .send(playlistDto);
-
-    createdPlaylist = res.body.data;
-
-    expect(createdPlaylist.name).toEqual(playlistDto.name);
-    expect(createdPlaylist.user.id).toEqual(playlistDto.user.id);
+      .set('Authorization', 'Bearer invalidtoken')
+      .send(playlistDto)
+      .expect(401);
   });
 
-  it(`/playlists (GET)`, async () => {
+  it(`/playlists (POST) - create playlist for testing`, async () => {
+    const playlistDto = {
+      name: 'playlistName',
+      user: {
+        id: createdUserA.id,
+      },
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/playlists')
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .send(playlistDto)
+      .expect(201);
+
+    createdPlaylistForUserA = res.body.data;
+
+    expect(createdPlaylistForUserA.name).toEqual(playlistDto.name);
+    expect(createdPlaylistForUserA.user.id).toEqual(playlistDto.user.id);
+  });
+
+  // Playlist GET
+
+  it(`/playlists (GET) - get all playlists (forbidden)`, async () => {
     const res = await request(app.getHttpServer())
       .get('/playlists')
-      .set('Authorization', 'Bearer ' + authToken)
-      .expect(200);
-
-    const playlists = res.body.data;
-
-    expect(Array.isArray(playlists)).toBe(true);
-    let containsCreatedPlaylist = false;
-    playlists.forEach(element => {
-      expect(element).toHaveProperty('id');
-      expect(element.name).toEqual(createdPlaylist.name);
-      expect(element).toHaveProperty('user');
-      expect(element.user.id).toEqual(createdUser.id);
-      if (element.id === createdPlaylist.id) {
-        containsCreatedPlaylist = true;
-      }
-    });
-    expect(containsCreatedPlaylist).toBe(true);
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .expect(403);
   });
 
-  // it(`/playlists/:id (GET) - invalid authorization token`, async () => {
-  //   const playlistToGet = createdPlaylist;
+  it(`/playlists/:id (GET) - get by id, invalid auth token`, async () => {
+    await request(app.getHttpServer())
+      .get('/playlists/' + createdPlaylistForUserA.id)
+      .set('Authorization', 'Bearer invalidtoken')
+      .expect(401);
+  });
 
-  //   await request(app.getHttpServer())
-  //     .get('/playlists/' + playlistToGet.id)
-  //     .set('Authorization', 'Bearer invalidtoken')
-  //     .expect(403);
-  // });
+  it(`/playlists/:id (GET) - get by id, other user's playlist, forbidden`, async () => {
+    await request(app.getHttpServer())
+      .get('/playlists/' + createdPlaylistForUserB.id)
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .expect(403);
+  });
 
-  it(`/playlists/:id (GET) - get by id`, async () => {
-    const playlistToGet = createdPlaylist;
+  it(`/playlists/:id (GET) - get by id, valid auth token`, async () => {
+    const playlistToGet = createdPlaylistForUserA;
     const res = await request(app.getHttpServer())
       .get('/playlists/' + playlistToGet.id)
-      .set('Authorization', 'Bearer ' + authToken)
+      .set('Authorization', 'Bearer ' + authTokenUserA)
       .expect(200);
 
     const responsePlaylist = res.body.data;
 
     expect(responsePlaylist.id).toEqual(playlistToGet.id);
     expect(responsePlaylist.name).toEqual(playlistToGet.name);
-    expect(responsePlaylist.user.id).toEqual(createdUser.id);
+    expect(responsePlaylist.user.id).toEqual(createdUserA.id);
   });
 
-  it(`/playlists/:id (PUT)`, async () => {
+  // Playlist PUT
+
+  it(`/playlists/:id (PUT) - update, valid auth token`, async () => {
     const updateDto = { name: 'updatedPlaylistName' };
 
     const res = await request(app.getHttpServer())
-      .put('/playlists/' + createdPlaylist.id)
-      .set('Authorization', 'Bearer ' + authToken)
+      .put('/playlists/' + createdPlaylistForUserA.id)
+      .set('Authorization', 'Bearer ' + authTokenUserA)
       .send(updateDto)
       .expect(200);
 
     const updatedPlaylist = res.body.data;
-    expect(updatedPlaylist.id).toEqual(createdPlaylist.id);
+    expect(updatedPlaylist.id).toEqual(createdPlaylistForUserA.id);
     expect(updatedPlaylist.name).toEqual(updateDto.name);
-    expect(updatedPlaylist.user.id).toEqual(createdPlaylist.user.id);
+    expect(updatedPlaylist.user.id).toEqual(createdPlaylistForUserA.user.id);
   });
 
-  it(`/playlists/:id/playlist-items (POST)`, async () => {
+  it(`/playlists/:id (PUT) - update, invalid auth token`, async () => {
+    const updateDto = { name: 'updatedPlaylistName' };
+
     const res = await request(app.getHttpServer())
-      .post('/GETplaylists/' + createdPlaylist.id + '/playlist-items')
-      .set('Authorization', 'Bearer ' + authToken)
+      .put('/playlists/' + createdPlaylistForUserA.id)
+      .set('Authorization', 'Bearer invalidtoken')
+      .send(updateDto)
+      .expect(401);
+  });
+
+  it(`/playlists/:id (DELETE), invalid auth token`, async () => {
+    const res = await request(app.getHttpServer())
+      .delete('/playlists/' + createdPlaylistForUserA.id)
+      .set('Authorization', 'Bearer invalidtoken')
+      .expect(401);
+  });
+
+  // Playlist items POST
+
+  it(`/playlists/:id/playlist-items (POST), add item, invalid auth token`, async () => {
+    const playlistItemDto = {
+      ytID: '9zfXD8wjzfc',
+      playlist: {
+        id: 1,
+      },
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/playlists/' + createdPlaylistForUserA.id + '/playlist-items')
+      .set('Authorization', 'Bearer invalidtoken')
+      .send(playlistItemDto)
+      .expect(401);
+  });
+
+  it(`/playlists/:id/playlist-items (POST), add item, other user's playlist, forbidden`, async () => {
+    const playlistItemDto = {
+      ytID: '9zfXD8wjzfc',
+      playlist: {
+        id: 1,
+      },
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/playlists/' + createdPlaylistForUserB.id + '/playlist-items')
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .send(playlistItemDto)
+      .expect(403);
+  });
+
+  it(`/playlists/:id/playlist-items (POST), add item`, async () => {
+    const playlistItemDto = {
+      ytID: '9zfXD8wjzfc',
+      playlist: {
+        id: createdPlaylistForUserA.id,
+      },
+    };
+
+    const res = await request(app.getHttpServer())
+      .post('/playlists/' + createdPlaylistForUserA.id + '/playlist-items')
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .send(playlistItemDto)
+      .expect(201);
+
+    const addedPlaylist = res.body.data;
+    expect(addedPlaylist.ytID).toEqual(playlistItemDto.ytID);
+    expect(addedPlaylist.playlist.id).toEqual(
+      playlistItemDto.playlist.id.toString(),
+    );
+    expect(addedPlaylist).toHaveProperty('id');
+  });
+
+  // Playlist items GET
+
+  it(`/playlists/:id/playlist-items (GET), get items, invalid auth token`, async () => {
+    const res = await request(app.getHttpServer())
+      .get('/playlists/' + createdPlaylistForUserA.id + '/playlist-items')
+      .set('Authorization', 'Bearer invalidtoken')
+      .expect(401);
+  });
+
+  it(`/playlists/:id/playlist-items (GET), get items, other user's playlist, forbidden`, async () => {
+    const res = await request(app.getHttpServer())
+      .get('/playlists/' + createdPlaylistForUserB.id + '/playlist-items')
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .expect(403);
+  });
+
+  it(`/playlists/:id/playlist-items (GET), get items`, async () => {
+    const res = await request(app.getHttpServer())
+      .get('/playlists/' + createdPlaylistForUserA.id + '/playlist-items')
+      .set('Authorization', 'Bearer ' + authTokenUserA)
       .expect(200);
 
-    const updatedPlaylist = res.body.data;
+    const playlists = res.body.data;
+    expect(Array.isArray(playlists)).toBe(true);
+    playlists.forEach(element => {
+      expect(element).toHaveProperty('id');
+      expect(element).toHaveProperty('ytID');
+    });
   });
 
-  it(`/playlists/:id/playlist-items (GET)`, async () => {
-    const res = await request(app.getHttpServer())
-      .get('/playlists/' + createdPlaylist.id + '/playlist-items')
-      .set('Authorization', 'Bearer ' + authToken)
-      .expect(200);
+  // Playlist DELETE
 
-    const updatedPlaylist = res.body.data;
+  it(`/playlists/:id (DELETE), other user's playlist, forbidden`, async () => {
+    const res = await request(app.getHttpServer())
+      .delete('/playlists/' + createdPlaylistForUserB.id)
+      .set('Authorization', 'Bearer ' + authTokenUserA)
+      .expect(403);
   });
 
-  it(`/playlists/:id (DELETE)`, async () => {
+  it(`/playlists/:id (DELETE), valid auth token`, async () => {
     const res = await request(app.getHttpServer())
-      .delete('/playlists/' + createdPlaylist.id)
-      .set('Authorization', 'Bearer ' + authToken)
+      .delete('/playlists/' + createdPlaylistForUserA.id)
+      .set('Authorization', 'Bearer ' + authTokenUserA)
       .expect(200);
 
     const playlist = res.body.data;
-    expect(playlist.id).toEqual(createdPlaylist.id);
+    expect(playlist.id).toEqual(createdPlaylistForUserA.id);
   });
 
   afterAll(async () => {
-    await UserHelper.deleteTestUser(
-      app.getHttpServer(),
-      authToken,
-      createdUser.id,
-    );
+    const server = app.getHttpServer();
+
+    await UserHelper.deleteUser(server, authTokenUserA, createdUserA.id);
+    await UserHelper.deleteUser(server, authTokenUserB, createdUserB.id);
     await app.close();
   });
 });
