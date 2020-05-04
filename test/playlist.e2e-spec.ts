@@ -29,28 +29,36 @@ describe('Playlist', () => {
 
     const server = await app.getHttpServer();
 
-    // Create test users and sessions
-    createdUserA = await UserHelper.createUser(server, UserHelper.testUserDto);
+    // Create User A resources
+    const dtoUserA = {
+      username: 'PlaylistTesterA',
+      password: 'password',
+      firstname: 'John',
+      lastname: 'Tester',
+    };
+
+    createdUserA = await UserHelper.createUser(server, dtoUserA);
     authTokenUserA = await SessionHelper.createSession(
       server,
-      UserHelper.testUserDto.username,
-      UserHelper.testUserDto.password,
+      dtoUserA.username,
+      dtoUserA.password,
     );
 
-    let dtoUserB: CreateUserDto = {
-      username: 'secondaryUser',
+    // Create User B resources
+    const dtoUserB: CreateUserDto = {
+      username: 'PlaylistTesterB',
       password: 'password',
-      firstname: 'Krzysztof',
-      lastname: 'Krawczyk',
+      firstname: 'John',
+      lastname: 'Tester',
     };
     createdUserB = await UserHelper.createUser(server, dtoUserB);
+
     authTokenUserB = await SessionHelper.createSession(
       server,
       dtoUserB.username,
       dtoUserB.password,
     );
 
-    // Create playlist for user B
     const playlistDtoUserB = {
       name: 'playlistForUserB',
       user: {

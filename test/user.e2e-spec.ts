@@ -5,12 +5,12 @@ import { AppModule } from '../src/app.module';
 import { User } from '../src/user/entities/user.entity';
 import { SessionHelper } from './helper';
 
-describe('AppController (e2e)', () => {
+describe('User (e2e)', () => {
   let app: INestApplication;
 
   const testUser: Partial<User> = {
-    username: 'testuser',
-    password: 'testpass',
+    username: 'UserTester',
+    password: 'password',
     firstname: 'John',
     lastname: 'Tester',
   };
