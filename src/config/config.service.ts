@@ -5,6 +5,10 @@ import {
   AuthOptionsFactory,
   AuthOptions,
 } from './contracts/auth-options-factory.contract';
+import { User } from '../user/entities/user.entity';
+import { Playlist } from '../playlist/entities/playlist.entity';
+import { PlaylistItem } from '../playlist-item/entities/playlist-item.entity';
+const path = require('path')
 
 @Injectable()
 export class ConfigService
@@ -22,6 +26,8 @@ export class ConfigService
   }
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    console.log(path.join(__dirname,'../../dist/**/*.entity{.ts,.js}'));
+    
     return {
       type: 'mysql',
       host: process.env['DB_HOST'] || 'localhost',
@@ -29,7 +35,12 @@ export class ConfigService
       username: process.env['DB_USERNAME'] || 'root',
       password: process.env['DB_PASSWORD'] || 'root',
       database: process.env['DB_SCHEMA'] || 'main',
-      entities: ['dist/**/*.entity{.ts,.js}'],
+      entities: [
+        path.join('dist/**/*.entity{.ts,.js}'),
+        User,
+        Playlist,
+        PlaylistItem,
+      ],
       synchronize: true,
       logging: 'all',
     };

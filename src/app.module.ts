@@ -12,7 +12,7 @@ import { ProxyModule } from './proxy/proxy.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
+     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useExisting: ConfigService,
     }),

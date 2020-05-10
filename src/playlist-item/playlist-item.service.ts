@@ -23,7 +23,7 @@ export class PlaylistItemService implements CanAffect<PlaylistItem> {
 
     if(!this.configService.createAuthOptions().enabled)
     {
-      return true;
+      return Promise.resolve(true);
     }
 
     const playlists = await this.playlistService.findPlaylistsForUser(user.id);

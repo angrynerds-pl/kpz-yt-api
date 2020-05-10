@@ -28,7 +28,7 @@ export class PlaylistService implements CanAffect<Playlist>{
     
     if(!this.configService.createAuthOptions().enabled)
     {
-      return true;
+      return Promise.resolve(true);
     }
 
 
