@@ -1,7 +1,6 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
 import { map } from 'rxjs/operators';
 
 @Injectable()

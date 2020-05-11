@@ -18,7 +18,7 @@ import { ConfigService } from '../config/config.service';
 export class PlaylistService implements CanAffect<Playlist>{
   constructor(
     @InjectRepository(Playlist)
-    private readonly playlistRepository: Repository<Playlist>, // PlaylistItemService
+    private readonly playlistRepository: Repository<Playlist>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly configService: ConfigService,

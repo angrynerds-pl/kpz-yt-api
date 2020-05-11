@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, HttpModule } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +9,9 @@ import { PlaylistService } from '../playlist/playlist.service';
 import { Playlist } from '../playlist/entities/playlist.entity';
 import { PlaylistItem } from '../playlist-item/entities/playlist-item.entity';
 import { PlaylistItemService } from '../playlist-item/playlist-item.service';
+import { ProxyService } from '../proxy/proxy.service';
+import { ProxyModule } from '../proxy/proxy.module';
+import { ConfigService } from '../config/config.service';
 
 @Module({
   imports: [
@@ -16,9 +19,13 @@ import { PlaylistItemService } from '../playlist-item/playlist-item.service';
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Playlist]),
     TypeOrmModule.forFeature([PlaylistItem]),
+    HttpModule.register({
+      timeout: 5000,
+    }),
     ConfigModule,
+    ProxyModule,
   ],
-  providers: [UserService, PlaylistService, PlaylistItemService],
+  providers: [UserService, PlaylistService, PlaylistItemService, ConfigService, ProxyService],
   controllers: [UserController],
   exports: [UserService],
 })
