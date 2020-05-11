@@ -13,6 +13,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcryptjs from 'bcryptjs';
 import { CanAffect } from '../auth/contracts/can-affect.contact';
 import { ConfigService } from '../config/config.service';
+import { PlaylistService } from '../playlist/playlist.service';
+import { PlaylistItemService } from '../playlist-item/playlist-item.service';
+import { ProxyService } from '../proxy/proxy.service';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class UserService implements CanAffect<User> {
@@ -20,12 +24,15 @@ export class UserService implements CanAffect<User> {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly playlistService: PlaylistService,
+    private readonly playlistItemService: PlaylistItemService,
+    private readonly proxyService: ProxyService
   ) {}
 
   async canAffect(user: User, entity: User | { id: number }): Promise<boolean> {
     return Promise.resolve(
       parseInt(user.id as any) === parseInt(entity.id as any) ||
-      !this.configService.createAuthOptions().enabled
+        !this.configService.createAuthOptions().enabled,
     );
   }
 
@@ -82,6 +89,39 @@ export class UserService implements CanAffect<User> {
     const userToDelete = await this.findById(userId);
     this.userRepository.delete(userToDelete);
     return userToDelete;
+  }
+
+  async findTopTitles(userId: number, limit: number) {
+    const foundPlaylists = await this.playlistService.findPlaylistsForUser(
+      userId,
+    );
+    // Get all user's playlist items
+    const foundItems = [];
+    
+    for (const playlist of foundPlaylists){
+      const currentPlaylistItems = await this.playlistItemService.findForPlaylist(
+        playlist.id,
+      );
+      foundItems.push(...currentPlaylistItems);
+    }
+
+    // Get only top {limit} items
+    foundItems.sort((a, b) => a.playbackCount - b.playbackCount);
+    const topItems = foundItems.slice(foundItems.length - limit);
+
+    // Map titles of top songs to playbackCount
+    const topSongs = [];
+    for (const item of topItems){
+      const observable = this.proxyService.callYtApi(item.ytID)
+      const ytApiResp = await observable.toPromise().then(result => result) as any;
+      if (!('items' in ytApiResp)){
+        throw new NotFoundException();
+      }
+      const title = ytApiResp.items[0].snippet.title;
+      topSongs.unshift({title: title, playbackCount: item.playbackCount});
+    }
+
+    return topSongs;
   }
 
   private async hashPassword(
