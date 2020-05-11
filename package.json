@@ -23,7 +23,7 @@
     "docker:dev:up": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ up",
     "docker:dev:down": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ down",
     "docker:dev:attach": "docker-compose -f ./docker/development/docker-compose.yml --project-directory ./ exec app /bin/sh",
-    "nest-dep-graph": "node node_modules/nestjs-dependency-graph/dist/index.js dist/app/app.module.js"
+    "nest-dep-graph": "node node_modules/nestjs-dependency-graph/dist/index.js dist/app.module.js"
   },
   "dependencies": {
     "@nestjs/common": "^6.10.14",
