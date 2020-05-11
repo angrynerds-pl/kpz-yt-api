@@ -40,7 +40,8 @@ export class PlaylistItemService implements CanAffect<PlaylistItem> {
 
   async create(itemDTO: CreatePlaylistItemDto): Promise<PlaylistItem> {
     const playlistItem = this.playlistItemRepository.create(itemDTO);
-
+    playlistItem.playbackCount = 0;
+    
     return await this.playlistItemRepository.save(playlistItem);
   }
 
