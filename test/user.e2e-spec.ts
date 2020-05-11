@@ -15,7 +15,7 @@ describe('User (e2e)', () => {
     lastname: 'Tester',
   };
 
-  let createdUserId: Number;
+  let createdUserId: number;
   let authToken;
 
   beforeAll(async () => {
@@ -40,9 +40,9 @@ describe('User (e2e)', () => {
   });
 
   it('/users (POST) - create user, invalid DTO', async () => {
-    let invalidUser = { username: 'someusername' }; // Missing other properties
+    const invalidUser = { username: 'someusername' }; // Missing other properties
 
-    const res = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/users')
       .send(invalidUser)
       .expect(400);
@@ -78,7 +78,7 @@ describe('User (e2e)', () => {
   });
 
   it('/users (GET) - get all users', async () => {
-    const res = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .get('/users')
       .set('Authorization', 'Bearer ' + authToken)
       .expect(403);
@@ -97,7 +97,7 @@ describe('User (e2e)', () => {
   });
 
   it('/users/:id (PUT) - update created user', async () => {
-    let dto = { firstname: 'Krzysztof', lastname: 'Krawczyk' };
+    const dto = { firstname: 'Krzysztof', lastname: 'Krawczyk' };
 
     const res = await request(app.getHttpServer())
       .put('/users/' + createdUserId)
