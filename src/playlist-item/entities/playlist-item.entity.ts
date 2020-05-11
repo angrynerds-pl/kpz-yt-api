@@ -10,6 +10,9 @@ export class PlaylistItem implements Identifiable {
   @Column()
   public ytID: string;
 
+  @Column({ default: 0 })
+  public playbackCount: number;
+
   // Relations
 
   @ManyToOne(

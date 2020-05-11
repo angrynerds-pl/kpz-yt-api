@@ -149,6 +149,7 @@ describe('PlaylistItem', () => {
     const playlistItem = res.body.data;
     expect(playlistItem.ytID).toEqual(createdPlaylistItemUserA.ytID);
     expect(playlistItem).toHaveProperty('id');
+    expect(playlistItem.playbackCount).toEqual(0);
   });
 
   // Playlist item PUT
@@ -163,7 +164,7 @@ describe('PlaylistItem', () => {
       .expect(401);
   });
 
-  it('/playlist-items/:id (PUT)', async () => {
+  it('/playlist-items/:id (PUT) - other user\'s item', async () => {
     const dto = { ytID: 'hehehehehe' };
 
     await request(app.getHttpServer())
@@ -174,7 +175,7 @@ describe('PlaylistItem', () => {
   });
 
   it('/playlist-items/:id (PUT)', async () => {
-    const dto = { ytID: 'hehehehehe' };
+    const dto = { ytID: 'hehehehehe', playbackCount: 1234 };
 
     const res = await request(app.getHttpServer())
       .put('/playlist-items/' + createdPlaylistItemUserA.id)
@@ -185,6 +186,7 @@ describe('PlaylistItem', () => {
     const updated = res.body.data;
     expect(updated.ytID).toEqual(dto.ytID);
     expect(updated.id).toEqual(createdPlaylistItemUserA.id);
+    expect(updated.playbackCount).toEqual(dto.playbackCount);
   });
 
   // Playlist item DELETE
