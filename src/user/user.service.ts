@@ -110,7 +110,7 @@ export class UserService implements CanAffect<User> {
     const topItems = foundItems.slice(foundItems.length - limit);
 
     // Map titles of top songs to playbackCount
-    const topSongs = [];
+    const topTitles = [];
     for (const item of topItems){
       const observable = this.proxyService.callYtApi(item.ytID)
       const ytApiResp = await observable.toPromise().then(result => result) as any;
@@ -118,10 +118,10 @@ export class UserService implements CanAffect<User> {
         throw new NotFoundException();
       }
       const title = ytApiResp.items[0].snippet.title;
-      topSongs.unshift({title: title, playbackCount: item.playbackCount});
+      topTitles.push({title: title, playbackCount: item.playbackCount});
     }
 
-    return topSongs;
+    return topTitles;
   }
 
   private async hashPassword(
