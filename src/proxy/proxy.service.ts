@@ -1,8 +1,7 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
-import {map} from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class ProxyService {
@@ -17,10 +16,15 @@ export class ProxyService {
 
   private prepareRequest(ytID: string): string {
     const apiKey: string = this.config.getApiKey();
-    return this.ytEndpoint.concat(ytID).concat('&key=' + apiKey).concat('&part=' + this.requestParams);
+    return this.ytEndpoint
+      .concat(ytID)
+      .concat('&key=' + apiKey)
+      .concat('&part=' + this.requestParams);
   }
 
-  callYtApi(ytID: string) :Observable<JSON> {
-    return this.httpService.get(this.prepareRequest(ytID)).pipe(map(response => response.data));
+  callYtApi(ytID: string): Observable<JSON> {
+    return this.httpService
+      .get(this.prepareRequest(ytID))
+      .pipe(map(response => response.data));
   }
 }

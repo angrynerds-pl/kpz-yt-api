@@ -75,6 +75,16 @@ export class PlaylistItemHelper {
     return createdPlaylistItem;
   }
 
+  static async updatePlaylistItem(server, authToken, playlistItemId, updatePlaylistItemDto){
+    const res = await request(server)
+      .put('/playlist-items/' + playlistItemId)
+      .set('Authorization', 'Bearer ' + authToken)
+      .send(updatePlaylistItemDto);
+
+    const createdPlaylistItem = res.body.data;
+    return createdPlaylistItem;
+  }
+
   static async deletePlaylistItem(server, authToken, playlistItemId) {
     const res = await request(server)
       .delete('/playlist-items/' + playlistItemId)

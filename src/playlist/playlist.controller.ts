@@ -21,7 +21,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../auth/decorators/auth-user.decorator';
 import { User } from '../user/entities/user.entity';
 
-
 @ApiTags('playlists')
 @Controller('playlists')
 @ApiBearerAuth()
@@ -35,7 +34,7 @@ export class PlaylistController {
   @UseGuards(new JwtAuthGuard())
   @Get()
   async findAll(@AuthUser() authUser: User) {
-    if(!(await this.playlistService.canAffect(authUser, { id: 0} ))) {
+    if (!(await this.playlistService.canAffect(authUser, { id: 0 }))) {
       throw new ForbiddenException();
     }
 
@@ -46,7 +45,7 @@ export class PlaylistController {
   @UseGuards(new JwtAuthGuard())
   @Get(':id')
   async findById(@Param('id') id: number, @AuthUser() authUser: User) {
-    if(!(await this.playlistService.canAffect(authUser, { id: id} ))) {
+    if (!(await this.playlistService.canAffect(authUser, { id: id }))) {
       throw new ForbiddenException();
     }
     const data = await this.playlistService.findById(id);
@@ -56,11 +55,8 @@ export class PlaylistController {
 
   @UseGuards(new JwtAuthGuard())
   @Get(':id/playlist-items')
-  async findPlaylistItems(
-    @Param('id') id: number, 
-    @AuthUser() authUser: User,
-  ) {
-    if(!(await this.playlistService.canAffect(authUser, { id: id} ))) {
+  async findPlaylistItems(@Param('id') id: number, @AuthUser() authUser: User) {
+    if (!(await this.playlistService.canAffect(authUser, { id: id }))) {
       throw new ForbiddenException();
     }
     const data = await this.playlistItemService.findForPlaylist(id);
@@ -71,12 +67,12 @@ export class PlaylistController {
   @Post(':id/playlist-items')
   async storePlaylistItem(
     @Param('id') id: number,
-    @Body() createPlayListItemDTO: CreatePlaylistItemDto, 
+    @Body() createPlayListItemDTO: CreatePlaylistItemDto,
     @AuthUser() authUser: User,
-    ) {
-      if(!(await this.playlistService.canAffect(authUser, { id: id} ))) {
-        throw new ForbiddenException();
-      }
+  ) {
+    if (!(await this.playlistService.canAffect(authUser, { id: id }))) {
+      throw new ForbiddenException();
+    }
     createPlayListItemDTO.playlist.id = id;
     const data = await this.playlistItemService.create(createPlayListItemDTO);
     return { data };
@@ -86,8 +82,12 @@ export class PlaylistController {
   @Post()
   async store(
     @Body() createPlaylistDto: CreatePlaylistDto,
-    @AuthUser() authUser: User,) {
-    if(createPlaylistDto.user.id !== authUser.id && !(await this.playlistService.canAffect(authUser, { id: -1}))) {
+    @AuthUser() authUser: User,
+  ) {
+    if (
+      createPlaylistDto.user.id !== authUser.id &&
+      !(await this.playlistService.canAffect(authUser, { id: -1 }))
+    ) {
       throw new ForbiddenException();
     }
     const data = await this.playlistService.create(createPlaylistDto);
@@ -98,29 +98,29 @@ export class PlaylistController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() updatePlaylistDto: UpdatePlaylistDto, 
+    @Body() updatePlaylistDto: UpdatePlaylistDto,
     @AuthUser() authUser: User,
-    ) {
-
-      if(updatePlaylistDto.user !== undefined){
-        if(updatePlaylistDto.user.id !== authUser.id && !(await this.playlistService.canAffect(authUser, { id: -1}))) {
-          throw new ForbiddenException();
-        }
-      }
-
-      if(!(await this.playlistService.canAffect(authUser, { id: id} ))) {
+  ) {
+    if (updatePlaylistDto.user !== undefined) {
+      if (
+        updatePlaylistDto.user.id !== authUser.id &&
+        !(await this.playlistService.canAffect(authUser, { id: -1 }))
+      ) {
         throw new ForbiddenException();
       }
+    }
+
+    if (!(await this.playlistService.canAffect(authUser, { id: id }))) {
+      throw new ForbiddenException();
+    }
     const data = await this.playlistService.update(id, updatePlaylistDto);
     return { data };
   }
 
   @UseGuards(new JwtAuthGuard())
   @Delete(':id')
-  async delete(@Param('id') id: number, 
-  @AuthUser() authUser: User,
-  ) {
-    if(!(await this.playlistService.canAffect(authUser, { id: id } ))) {
+  async delete(@Param('id') id: number, @AuthUser() authUser: User) {
+    if (!(await this.playlistService.canAffect(authUser, { id: id }))) {
       throw new ForbiddenException();
     }
     const data = await this.playlistService.delete(id);
