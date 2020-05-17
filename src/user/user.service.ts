@@ -26,7 +26,7 @@ export class UserService implements CanAffect<User> {
     private readonly configService: ConfigService,
     private readonly playlistService: PlaylistService,
     private readonly playlistItemService: PlaylistItemService,
-    private readonly proxyService: ProxyService
+    private readonly proxyService: ProxyService,
   ) {}
 
   async canAffect(user: User, entity: User | { id: number }): Promise<boolean> {
@@ -97,8 +97,8 @@ export class UserService implements CanAffect<User> {
     );
     // Get all user's playlist items
     const foundItems = [];
-    
-    for (const playlist of foundPlaylists){
+
+    for (const playlist of foundPlaylists) {
       const currentPlaylistItems = await this.playlistItemService.findForPlaylist(
         playlist.id,
       );
@@ -110,16 +110,30 @@ export class UserService implements CanAffect<User> {
     const topItems = foundItems.slice(foundItems.length - limit);
 
     // Map titles of top songs to playbackCount
-    const topTitles = [];
-    for (const item of topItems){
-      const observable = this.proxyService.callYtApi(item.ytID)
-      const ytApiResp = await observable.toPromise().then(result => result) as any;
-      if (!('items' in ytApiResp)){
+    const ytIdToTopTitlesMap = new Map<string, any>();
+    for (const item of topItems) {
+      const observable = this.proxyService.callYtApi(item.ytID);
+      const ytApiResp = (await observable
+        .toPromise()
+        .then(result => result)) as any;
+      if (!('items' in ytApiResp)) {
         throw new NotFoundException();
       }
       const title = ytApiResp.items[0].snippet.title;
-      topTitles.push({title: title, playbackCount: item.playbackCount});
+      let currentPlayCountForYtID;
+      if (ytIdToTopTitlesMap.has(item.ytID)) {
+        currentPlayCountForYtID = ytIdToTopTitlesMap.get(item.ytID)
+          .playbackCount;
+      } else {
+        currentPlayCountForYtID = 0;
+      }
+      ytIdToTopTitlesMap.set(item.ytID, {
+        title: title,
+        playbackCount: currentPlayCountForYtID + item.playbackCount,
+      });
     }
+
+    const topTitles = Array.from(ytIdToTopTitlesMap.values());
 
     return topTitles;
   }
