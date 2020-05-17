@@ -138,6 +138,39 @@ export class UserService implements CanAffect<User> {
     return topTitles;
   }
 
+  async findTopPlaylists(userId: number, limit: number) {
+    const foundPlaylists = await this.playlistService.findPlaylistsForUser(
+      userId,
+    );
+    
+    // Get all user's playlist items
+    const playlistIdToPlaybackCountMap = new Map<number, number>();
+    const playlistIdToNameMap = new Map<number, string>();
+    
+    for (const playlist of foundPlaylists) {
+      playlistIdToNameMap.set(playlist.id, playlist.name);
+
+      let playbackCountForCurrentPlaylist = 0;
+      // Count playback count of all items in this playlist
+      
+      for (const item of playlist.playlistItems) {
+        playbackCountForCurrentPlaylist+=item.playbackCount;    
+      }
+      playlistIdToPlaybackCountMap.set(playlist.id, playbackCountForCurrentPlaylist);
+    }
+
+    // Create array of {name, playbackCount} objects
+    const allPlaylists = [];
+    for (const [playlistId,playbackCount] of playlistIdToPlaybackCountMap){
+      allPlaylists.push({name: playlistIdToNameMap.get(playlistId), playbackCount: playbackCount});
+    }
+    // Get only top {limit} items
+    allPlaylists.sort((a, b) => a.playbackCount - b.playbackCount);
+    const topPlaylists = allPlaylists.slice(allPlaylists.length - limit);
+
+    return topPlaylists;
+  }
+
   private async hashPassword(
     dto: CreateUserDto | UpdateUserDto,
   ): Promise<string> {

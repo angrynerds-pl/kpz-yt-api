@@ -101,4 +101,18 @@ export class UserController {
     const foundTop = await this.usersService.findTopTitles(userId, limit);
     return { data: foundTop };
   }
+
+  @UseGuards(new JwtAuthGuard())
+  @Get(':id/top-playlists/:limit')
+  async topPlaylists(
+    @Param('id') userId: number,
+    @AuthUser() authUser: User,
+    @Param('limit') limit: number,
+  ) {
+    if (!(await this.usersService.canAffect(authUser, { id: userId }))) {
+      throw new ForbiddenException();
+    }
+    const foundTop = await this.usersService.findTopPlaylists(userId, limit);
+    return { data: foundTop };
+  }
 }
