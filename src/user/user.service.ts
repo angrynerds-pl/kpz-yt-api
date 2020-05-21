@@ -96,22 +96,36 @@ export class UserService implements CanAffect<User> {
       userId,
     );
     // Get all user's playlist items
-    const foundItems = [];
+    const ytIdToTotalPlaybackCountMap = new Map<string, number>();
 
+    // Count total playbackCount for each ytId
     for (const playlist of foundPlaylists) {
-      const currentPlaylistItems = await this.playlistItemService.findForPlaylist(
-        playlist.id,
-      );
-      foundItems.push(...currentPlaylistItems);
+      for (const item of playlist.playlistItems) {
+        let currentPlayCountForYtID;
+        if (ytIdToTotalPlaybackCountMap.has(item.ytID)) {
+          currentPlayCountForYtID = ytIdToTotalPlaybackCountMap.get(item.ytID);
+        } else {
+          currentPlayCountForYtID = 0;
+        }
+        ytIdToTotalPlaybackCountMap.set(
+          item.ytID,
+          currentPlayCountForYtID + item.playbackCount,
+        );
+      }
     }
-
     // Get only top {limit} items
+    const foundItems = [];
+    for ( const [ytID, playbackCount] of ytIdToTotalPlaybackCountMap){
+      foundItems.push({ytID: ytID, playbackCount: playbackCount});
+    }
     foundItems.sort((a, b) => a.playbackCount - b.playbackCount);
     const topItems = foundItems.slice(foundItems.length - limit);
 
     // Map titles of top songs to playbackCount
-    const ytIdToTopTitlesMap = new Map<string, any>();
+
+    const topTitles = [];
     for (const item of topItems) {
+      // Get item title from ytApi
       const observable = this.proxyService.callYtApi(item.ytID);
       const ytApiResp = (await observable
         .toPromise()
@@ -120,20 +134,12 @@ export class UserService implements CanAffect<User> {
         throw new NotFoundException();
       }
       const title = ytApiResp.items[0].snippet.title;
-      let currentPlayCountForYtID;
-      if (ytIdToTopTitlesMap.has(item.ytID)) {
-        currentPlayCountForYtID = ytIdToTopTitlesMap.get(item.ytID)
-          .playbackCount;
-      } else {
-        currentPlayCountForYtID = 0;
-      }
-      ytIdToTopTitlesMap.set(item.ytID, {
+
+      topTitles.push({
         title: title,
-        playbackCount: currentPlayCountForYtID + item.playbackCount,
+        playbackCount: item.playbackCount,
       });
     }
-
-    const topTitles = Array.from(ytIdToTopTitlesMap.values());
 
     return topTitles;
   }
@@ -142,27 +148,33 @@ export class UserService implements CanAffect<User> {
     const foundPlaylists = await this.playlistService.findPlaylistsForUser(
       userId,
     );
-    
+
     // Get all user's playlist items
     const playlistIdToPlaybackCountMap = new Map<number, number>();
     const playlistIdToNameMap = new Map<number, string>();
-    
+
     for (const playlist of foundPlaylists) {
       playlistIdToNameMap.set(playlist.id, playlist.name);
 
       let playbackCountForCurrentPlaylist = 0;
       // Count playback count of all items in this playlist
-      
+
       for (const item of playlist.playlistItems) {
-        playbackCountForCurrentPlaylist+=item.playbackCount;    
+        playbackCountForCurrentPlaylist += item.playbackCount;
       }
-      playlistIdToPlaybackCountMap.set(playlist.id, playbackCountForCurrentPlaylist);
+      playlistIdToPlaybackCountMap.set(
+        playlist.id,
+        playbackCountForCurrentPlaylist,
+      );
     }
 
     // Create array of {name, playbackCount} objects
     const allPlaylists = [];
-    for (const [playlistId,playbackCount] of playlistIdToPlaybackCountMap){
-      allPlaylists.push({name: playlistIdToNameMap.get(playlistId), playbackCount: playbackCount});
+    for (const [playlistId, playbackCount] of playlistIdToPlaybackCountMap) {
+      allPlaylists.push({
+        name: playlistIdToNameMap.get(playlistId),
+        playbackCount: playbackCount,
+      });
     }
     // Get only top {limit} items
     allPlaylists.sort((a, b) => a.playbackCount - b.playbackCount);
