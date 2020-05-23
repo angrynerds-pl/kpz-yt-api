@@ -5,6 +5,8 @@ import { User } from './entities/user.entity';
 import { ConfigService } from '../config/config.service';
 import * as bcryptjs from 'bcryptjs';
 import * as typeorm from 'typeorm';
+import { PlaylistService } from '../playlist/playlist.service';
+import { ProxyService } from '../proxy/proxy.service';
 jest.mock('bcryptjs');
 
 describe('UserService', () => {
@@ -21,6 +23,8 @@ describe('UserService', () => {
   const configServiceMock = {
     createAuthOptions: jest.fn(),
   };
+  const playlistServiceMock = {};
+  const proxyServiceMock = {};
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,6 +37,14 @@ describe('UserService', () => {
         {
           provide: ConfigService,
           useValue: configServiceMock,
+        },
+        {
+          provide: PlaylistService,
+          useValue: playlistServiceMock,
+        },
+        {
+          provide: ProxyService,
+          useValue: proxyServiceMock,
         },
       ],
     }).compile();

@@ -25,7 +25,6 @@ export class UserService implements CanAffect<User> {
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly playlistService: PlaylistService,
-    private readonly playlistItemService: PlaylistItemService,
     private readonly proxyService: ProxyService,
   ) {}
 
