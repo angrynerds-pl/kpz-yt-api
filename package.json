@@ -31,7 +31,7 @@
     "@nestjs/core": "^6.10.14",
     "@nestjs/jwt": "^7.0.0",
     "@nestjs/passport": "^7.0.0",
-    "@nestjs/platform-express": "^6.10.14",
+    "@nestjs/platform-express": "^9.2.1",
     "@nestjs/swagger": "^4.3.2",
     "@nestjs/typeorm": "^6.3.3",
     "axios": "^0.19.2",
